@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Notice } from '../types';
+import { Notice } from '../types.ts';
 
 interface NoticesPageProps {
   notices: Notice[];
@@ -10,9 +10,11 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
   const [search, setSearch] = useState('');
 
   const sortedNotices = [...notices].sort((a, b) => {
-    // Important notices first, then by date descending
-    if (a.isImportant && !b.isImportant) return -1;
-    if (!a.isImportant && b.isImportant) return 1;
+    // Sort logic: Urgent first, then by date descending
+    const aUrgent = a.category === 'Urgent';
+    const bUrgent = b.category === 'Urgent';
+    if (aUrgent && !bUrgent) return -1;
+    if (!aUrgent && bUrgent) return 1;
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
@@ -20,6 +22,16 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
     n.title.toLowerCase().includes(search.toLowerCase()) || 
     n.description.toLowerCase().includes(search.toLowerCase())
   );
+
+  const getTagStyles = (category?: string) => {
+    switch(category) {
+      case 'Urgent': return 'bg-red-600 text-white animate-pulse';
+      case 'New': return 'bg-emerald-600 text-white';
+      case 'Holiday': return 'bg-amber-500 text-white';
+      case 'Event': return 'bg-blue-600 text-white';
+      default: return 'bg-slate-500 text-white';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-16">
@@ -39,44 +51,47 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {filtered.map(notice => (
               <div 
                 key={notice.id} 
-                className={`bg-white p-8 rounded-2xl border ${notice.isImportant ? 'border-red-200 ring-1 ring-red-50/50' : 'border-slate-200'} shadow-sm group hover:shadow-md transition-all`}
+                className={`bg-white p-8 rounded-3xl border-2 transition-all hover:shadow-xl ${
+                  notice.category === 'Urgent' ? 'border-red-100' : 'border-slate-100'
+                }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full uppercase tracking-tight">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-xs font-black text-slate-400 bg-slate-100 px-4 py-1.5 rounded-full uppercase tracking-widest">
                       {new Date(notice.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
-                    {notice.isImportant && (
-                      <span className="px-3 py-1 bg-red-600 text-white text-[10px] font-black rounded-full shadow-sm animate-pulse">
-                        IMPORTANT
+                    {notice.category && (
+                      <span className={`px-4 py-1.5 text-[10px] font-black rounded-full shadow-sm tracking-[0.1em] uppercase ${getTagStyles(notice.category)}`}>
+                        {notice.category}
                       </span>
                     )}
                   </div>
                 </div>
-                <h3 className={`text-2xl font-bold mb-4 ${notice.isImportant ? 'text-red-700' : 'text-slate-800'}`}>
+                <h3 className={`text-2xl md:text-3xl font-black mb-4 leading-tight ${notice.category === 'Urgent' ? 'text-red-700' : 'text-slate-800'}`}>
                   {notice.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed mb-6">
+                <p className="text-slate-600 leading-relaxed mb-8 text-lg whitespace-pre-line">
                   {notice.description}
                 </p>
                 {notice.link && (
                   <a 
                     href={notice.link}
-                    className="inline-flex items-center gap-2 text-emerald-600 font-bold hover:gap-3 transition-all underline decoration-emerald-200 underline-offset-4"
+                    className="inline-flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
                   >
-                    View Attached Resource <i className="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                    View Details <i className="fa-solid fa-arrow-right-long text-sm"></i>
                   </a>
                 )}
               </div>
             ))}
             
             {filtered.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-slate-500 text-lg">No notices found matching your query.</p>
+              <div className="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                <i className="fa-solid fa-wind text-4xl text-slate-200 mb-4 block"></i>
+                <p className="text-slate-400 text-lg font-medium">It looks quiet here... Check back later!</p>
               </div>
             )}
           </div>

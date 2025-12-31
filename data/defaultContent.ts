@@ -113,6 +113,10 @@ export const INITIAL_CONTENT: AppState = {
     { id: "g2", url: "https://picsum.photos/id/20/800/600", category: "Events", title: "Tech Fest 2023" },
     { id: "g3", url: "https://picsum.photos/id/30/800/600", category: "Campus", title: "Main Auditorium" }
   ],
+  galleryMetadata: {
+    "Campus": "https://picsum.photos/id/10/400/400",
+    "Events": "https://picsum.photos/id/20/400/400"
+  },
   about: {
     intro: "Apex International Institute is a leading provider of technical education, founded in 2010 with a vision to bridge the gap between academia and industry.",
     mission: "To provide accessible, high-quality professional training that transforms lives.",

@@ -56,6 +56,7 @@ export interface Notice {
   title: string;
   description: string;
   isImportant: boolean;
+  category?: 'General' | 'Urgent' | 'New' | 'Holiday' | 'Event';
   link?: string;
 }
 
@@ -72,6 +73,7 @@ export interface AppState {
   courses: Course[];
   notices: Notice[];
   gallery: GalleryItem[];
+  galleryMetadata?: Record<string, string>; // Stores category name -> thumbnail URL mapping
   about: {
     intro: string;
     mission: string;
