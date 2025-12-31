@@ -20,8 +20,25 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
     }
   };
 
+  // Separate notices for Spotlight vs Ticker
+  const spotlightNotice = notices[0];
+  const tickerNotices = notices.length > 1 ? notices.slice(1) : notices;
+
   return (
     <div className="space-y-0">
+      <style>{`
+        @keyframes marqueeVertical {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-50%); }
+        }
+        .animate-marquee-vertical {
+          animation: marqueeVertical 25s linear infinite;
+        }
+        .animate-marquee-vertical:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
       {/* Hero Section */}
       {home.hero.visible && (
         <section 
@@ -70,10 +87,9 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
         </div>
       </section>
 
-      {/* Engaging Notices Board */}
+      {/* Engaging Moving Notices Board */}
       {home.sections.notices && notices.length > 0 && (
         <section className="py-24 bg-slate-900 overflow-hidden relative">
-          {/* Background Decor */}
           <div className="absolute top-0 right-0 w-1/3 h-full bg-emerald-500/5 blur-[120px] rounded-full -mr-20"></div>
           
           <div className="container mx-auto px-4 relative z-10">
@@ -81,7 +97,7 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
               <div className="max-w-xl">
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-12 h-1 bg-emerald-500 rounded-full"></span>
-                  <span className="text-emerald-400 font-black uppercase tracking-[0.3em] text-[10px]">What's New</span>
+                  <span className="text-emerald-400 font-black uppercase tracking-[0.3em] text-[10px]">Campus Pulse</span>
                 </div>
                 <h2 className="text-4xl font-black text-white tracking-tight">{home.sectionLabels.noticesTitle}</h2>
                 <p className="text-slate-400 text-lg mt-3 font-medium">{home.sectionLabels.noticesSubtitle}</p>
@@ -92,78 +108,85 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Featured Notice */}
-              <div className="lg:col-span-7">
-                {notices.slice(0, 1).map(notice => {
-                  const theme = getNoticeTheme(notice.category);
-                  return (
-                    <div key={notice.id} className="h-full bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 flex flex-col justify-between group hover:border-emerald-500/50 transition-all shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                         <i className={`fa-solid ${theme.icon} text-9xl text-white`}></i>
-                      </div>
-                      <div>
-                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 ${theme.bg} ${theme.text} text-[10px] font-black uppercase tracking-widest`}>
-                          <i className={`fa-solid ${theme.icon}`}></i>
-                          {notice.category || 'Announcement'}
-                        </div>
-                        <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight group-hover:text-emerald-400 transition-colors">
-                          {notice.title}
-                        </h3>
-                        <p className="text-slate-400 text-lg leading-relaxed line-clamp-4">
-                          {notice.description}
-                        </p>
-                      </div>
-                      <div className="mt-12 flex items-center justify-between border-t border-white/5 pt-8">
-                         <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">
-                             <i className="fa-regular fa-clock"></i>
-                           </div>
-                           <span className="text-xs font-bold text-slate-500">{new Date(notice.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                         </div>
-                         {notice.link && (
-                           <a href={notice.link} className="text-emerald-500 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 hover:text-emerald-400 transition-colors">
-                             View Details <i className="fa-solid fa-chevron-right"></i>
-                           </a>
-                         )}
-                      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+              {/* Spotlight Notice (Static/Featured) */}
+              <div className="lg:col-span-7 h-full">
+                {spotlightNotice && (
+                  <div key={spotlightNotice.id} className="h-full bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 flex flex-col justify-between group hover:border-emerald-500/50 transition-all shadow-2xl relative overflow-hidden min-h-[450px]">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                       <i className={`fa-solid ${getNoticeTheme(spotlightNotice.category).icon} text-9xl text-white`}></i>
                     </div>
-                  );
-                })}
+                    <div>
+                      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 ${getNoticeTheme(spotlightNotice.category).bg} ${getNoticeTheme(spotlightNotice.category).text} text-[10px] font-black uppercase tracking-widest`}>
+                        <i className={`fa-solid ${getNoticeTheme(spotlightNotice.category).icon}`}></i>
+                        {spotlightNotice.category || 'Announcement'}
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight group-hover:text-emerald-400 transition-colors">
+                        {spotlightNotice.title}
+                      </h3>
+                      <p className="text-slate-400 text-lg leading-relaxed line-clamp-4">
+                        {spotlightNotice.description}
+                      </p>
+                    </div>
+                    <div className="mt-12 flex items-center justify-between border-t border-white/5 pt-8">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">
+                           <i className="fa-regular fa-clock"></i>
+                         </div>
+                         <span className="text-xs font-bold text-slate-500">{new Date(spotlightNotice.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                       </div>
+                       {spotlightNotice.link && (
+                         <a href={spotlightNotice.link} className="text-emerald-500 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 hover:text-emerald-400 transition-colors">
+                           View Details <i className="fa-solid fa-chevron-right"></i>
+                         </a>
+                       )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Sidebar Notices */}
-              <div className="lg:col-span-5 flex flex-col gap-6">
-                {notices.slice(1, 4).map(notice => {
-                  const theme = getNoticeTheme(notice.category);
-                  return (
-                    <div key={notice.id} className="bg-slate-800/30 border border-white/5 rounded-3xl p-6 flex gap-6 hover:bg-slate-800/60 transition-all group cursor-pointer hover:border-white/10">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${theme.bg} ${theme.text} text-xl shadow-inner group-hover:scale-110 transition-transform`}>
-                        <i className={`fa-solid ${theme.icon}`}></i>
-                      </div>
-                      <div className="flex flex-col justify-center">
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{new Date(notice.date).toLocaleDateString()}</span>
-                          <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${theme.bg} ${theme.text}`}>
-                            {notice.category}
-                          </span>
-                        </div>
-                        <h4 className="text-white font-bold text-lg group-hover:text-emerald-400 transition-colors line-clamp-1">{notice.title}</h4>
-                      </div>
+              {/* Upward Moving Ticker */}
+              <div className="lg:col-span-5 h-[450px] relative">
+                <div className="absolute top-0 left-0 w-full z-20 h-20 bg-gradient-to-b from-slate-900 to-transparent pointer-events-none rounded-t-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-full z-20 h-20 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none rounded-b-3xl"></div>
+                
+                <div className="h-full overflow-hidden border border-white/5 rounded-[2.5rem] bg-slate-800/20">
+                  <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-slate-900/80 backdrop-blur-md z-30">
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                      Live Feed
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">{tickerNotices.length} Updates</span>
+                  </div>
+
+                  <div className="relative h-full pt-4">
+                    <div className="animate-marquee-vertical flex flex-col gap-4 px-4">
+                      {/* Original Items */}
+                      {[...tickerNotices, ...tickerNotices].map((notice, idx) => {
+                        const theme = getNoticeTheme(notice.category);
+                        return (
+                          <div 
+                            key={`${notice.id}-${idx}`} 
+                            className="bg-slate-800/40 border border-white/5 rounded-3xl p-6 flex gap-6 hover:bg-slate-700/60 transition-all group cursor-pointer hover:border-emerald-500/30 shrink-0"
+                          >
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${theme.bg} ${theme.text} text-xl shadow-inner group-hover:scale-110 transition-transform`}>
+                              <i className={`fa-solid ${theme.icon}`}></i>
+                            </div>
+                            <div className="flex flex-col justify-center overflow-hidden">
+                              <div className="flex items-center gap-3 mb-1">
+                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{new Date(notice.date).toLocaleDateString()}</span>
+                                <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${theme.bg} ${theme.text}`}>
+                                  {notice.category}
+                                </span>
+                              </div>
+                              <h4 className="text-white font-bold text-lg group-hover:text-emerald-400 transition-colors line-clamp-1 truncate">{notice.title}</h4>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-                {notices.length > 4 && (
-                   <div className="mt-auto py-8 px-6 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl text-white flex items-center justify-between shadow-xl shadow-emerald-900/20">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-black uppercase tracking-widest opacity-80">And {notices.length - 4} more updates</span>
-                        <span className="text-lg font-bold">Stay fully informed</span>
-                      </div>
-                      <Link to="/notices" className="w-12 h-12 bg-white text-emerald-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-                        <i className="fa-solid fa-arrow-right"></i>
-                      </Link>
-                   </div>
-                )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
