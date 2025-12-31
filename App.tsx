@@ -25,24 +25,47 @@ const App: React.FC = () => {
     
     try {
       const parsed = JSON.parse(saved);
-      // Merge INITIAL_CONTENT with saved to ensure new keys like 'enrollmentForm' exist
-      return {
+      
+      // Build a fresh state by merging saved data over the default template
+      const mergedState: AppState = {
         ...INITIAL_CONTENT,
         ...parsed,
-        // Deeply merge specific objects if necessary, or just ensure keys exist
-        site: { ...INITIAL_CONTENT.site, ...parsed.site },
+        site: { 
+          ...INITIAL_CONTENT.site, 
+          ...parsed.site,
+          // Explicitly ensure contact and footer objects are fully populated
+          contact: { ...INITIAL_CONTENT.site.contact, ...(parsed.site?.contact || {}) },
+          footer: { ...INITIAL_CONTENT.site.footer, ...(parsed.site?.footer || {}) }
+        },
         home: { ...INITIAL_CONTENT.home, ...parsed.home },
-        enrollmentForm: parsed.enrollmentForm || INITIAL_CONTENT.enrollmentForm,
         about: { ...INITIAL_CONTENT.about, ...parsed.about }
       };
+
+      // CRITICAL VALIDATION:
+      // If the saved 'social' is an old object format or missing, force it to the new array format
+      // This prevents the 'social.map is not a function' error which causes blank pages.
+      if (!Array.isArray(mergedState.site.social)) {
+        mergedState.site.social = INITIAL_CONTENT.site.social;
+      }
+
+      // Ensure notices and courses are arrays
+      if (!Array.isArray(mergedState.notices)) mergedState.notices = INITIAL_CONTENT.notices;
+      if (!Array.isArray(mergedState.courses)) mergedState.courses = INITIAL_CONTENT.courses;
+
+      return mergedState;
     } catch (e) {
+      console.error("Educational CMS: Error restoring state from localStorage. Falling back to default content.", e);
       return INITIAL_CONTENT;
     }
   });
 
   const updateContent = (newContent: AppState) => {
     setContent(newContent);
-    localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
+    try {
+      localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
+    } catch (err) {
+      console.error("Educational CMS: Failed to save to localStorage (Quota likely exceeded)", err);
+    }
   };
 
   return (
