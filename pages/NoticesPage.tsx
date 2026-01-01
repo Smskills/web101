@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Notice } from '../types.ts';
+import FormattedText from '../components/FormattedText.tsx';
 
 interface NoticesPageProps {
   notices: Notice[];
@@ -104,9 +105,10 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
                     {notice.title}
                   </h3>
                   
-                  <p className="text-slate-600 text-lg leading-relaxed font-medium mb-8 whitespace-pre-line">
-                    {notice.description}
-                  </p>
+                  <FormattedText 
+                    text={notice.description} 
+                    className="text-slate-600 text-lg leading-relaxed font-medium mb-8 whitespace-pre-line"
+                  />
 
                   {notice.link && (
                     <a href={notice.link} className="inline-flex items-center gap-3 px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl active:scale-95">

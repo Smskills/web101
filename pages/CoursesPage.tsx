@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Course } from '../types';
+import FormattedText from '../components/FormattedText.tsx';
 
 interface CoursesPageProps {
   courses: Course[];
@@ -66,9 +67,10 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ courses }) => {
                    </span>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4 group-hover:text-emerald-600 transition-colors">{course.name}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-8 flex-grow">
-                  {course.description}
-                </p>
+                <FormattedText 
+                  text={course.description} 
+                  className="text-slate-600 text-sm leading-relaxed mb-8 flex-grow"
+                />
                 <Link 
                   to={`/enroll?course=${encodeURIComponent(course.name)}`}
                   className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-emerald-600 transition-all active:scale-95 text-center flex items-center justify-center gap-2"

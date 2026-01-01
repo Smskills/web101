@@ -25,6 +25,12 @@ const GalleryTab: React.FC<GalleryTabProps> = ({
     ...gallery.map(item => item.category)
   ]));
 
+  const handleDelete = (id: string) => {
+    if (window.confirm("Permanently delete this photo from the gallery?")) {
+      deleteItem(id);
+    }
+  };
+
   return (
     <div className="space-y-12 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -69,7 +75,7 @@ const GalleryTab: React.FC<GalleryTabProps> = ({
                 <div key={item.id} className="relative group bg-slate-900/40 p-4 rounded-2xl border border-slate-700/50 transition-all hover:border-emerald-500/20">
                   <div className="aspect-square rounded-xl overflow-hidden border border-slate-800 relative">
                      <img src={item.url} className="w-full h-full object-cover" />
-                     <button onClick={() => deleteItem(item.id)} className="absolute top-2 right-2 bg-red-600 w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xl hover:bg-red-500"><i className="fa-solid fa-trash-can text-xs text-white"></i></button>
+                     <button onClick={() => handleDelete(item.id)} className="absolute top-2 right-2 bg-red-600 w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xl hover:bg-red-500"><i className="fa-solid fa-trash-can text-xs text-white"></i></button>
                   </div>
                   <div className="mt-3">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Caption (Optional)</label>
