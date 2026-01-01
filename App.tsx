@@ -21,6 +21,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage.tsx';
 import TermsOfServicePage from './pages/TermsOfServicePage.tsx';
 import CareerGuidancePage from './pages/CareerGuidancePage.tsx';
 import PlacementReviewPage from './pages/PlacementReviewPage.tsx';
+import NotFoundPage from './pages/NotFoundPage.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -95,6 +96,8 @@ const App: React.FC = () => {
             <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
             <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
             <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
+            {/* Catch-all 404 Fallback Route */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <Footer config={content.site} />
@@ -103,11 +106,28 @@ const App: React.FC = () => {
   );
 };
 
+/**
+ * Enhanced ScrollToTop to handle standard page transitions AND hash fragment scrolling.
+ * HashRouter puts the fragment inside the hash, so location.pathname handles the route,
+ * but element IDs need custom handling for smooth scrolling.
+ */
 const ScrollToTop: React.FC = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    // If there is a hash (e.g. #notices), scroll to the element with that ID
+    if (hash) {
+      const id = hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Otherwise, scroll to top of the page on route change
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
+
   return null;
 };
 

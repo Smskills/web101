@@ -189,7 +189,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                   )}
 
                   <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                    By submitting, you agree to our <Link to="/privacy-policy" className="text-emerald-600 hover:underline">privacy policy</Link> and terms of service.
+                    By submitting, you agree to our <Link to="/privacy-policy" className="text-emerald-600 hover:underline">privacy policy</Link> and <Link to="/terms-of-service" className="text-emerald-600 hover:underline">terms of service</Link>.
                   </p>
                 </form>
               </div>
