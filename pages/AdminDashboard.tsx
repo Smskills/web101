@@ -208,7 +208,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
 
   const addFormField = () => {
     const newField: FormField = { id: Date.now().toString(), label: 'New Field Label', type: 'text', placeholder: 'Enter placeholder...', required: false, options: [] };
-    setLocalContent(prev => ({ ...prev, enrollmentForm: { ...prev.enrollmentForm, fields: [newField, ...prev.enrollmentForm.fields] } }));
+    setLocalContent(prev => ({ 
+      ...prev, 
+      enrollmentForm: { 
+        ...prev.enrollmentForm, 
+        fields: [...prev.enrollmentForm.fields, newField] 
+      } 
+    }));
   };
 
   const updateFormField = (id: string, updates: Partial<FormField>) => {
@@ -443,7 +449,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
         </div>
 
         <div className="flex-grow bg-slate-800 rounded-[2.5rem] p-8 md:p-12 border border-slate-700 shadow-3xl min-h-[70vh]">
-          {/* Fixed: Added missing navigation handlers to SiteTab */}
           {activeTab === 'site' && (
             <SiteTab 
               data={localContent.site} 
