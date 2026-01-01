@@ -11,9 +11,16 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const logoUrl = config.logo || "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png";
 
-  const isInternalLink = (path: string) => path.startsWith('#/') || path.startsWith('/');
+  const isInternalLink = (path: string) => {
+    if (!path) return false;
+    return path.startsWith('#/') || path.startsWith('/') || path.includes(window.location.origin);
+  };
+
   const getCleanPath = (path: string) => {
+    if (!path) return '/';
+    // Remove both #/ and # prefixes for Link component
     if (path.startsWith('#/')) return path.substring(1);
+    if (path.startsWith('#')) return path.substring(1);
     return path;
   };
 
@@ -41,10 +48,12 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
         <nav className="hidden lg:flex items-center space-x-10">
           {config.navigation.map((item) => {
             const isInternal = isInternalLink(item.path);
+            const cleanPath = getCleanPath(item.path);
+            
             return isInternal ? (
               <Link
                 key={item.label}
-                to={getCleanPath(item.path)}
+                to={cleanPath}
                 className="text-slate-600 hover:text-emerald-600 font-black transition-colors text-[11px] uppercase tracking-widest"
               >
                 {item.label}
@@ -64,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
             className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-2xl active:scale-95"
           >
             <i className="fa-solid fa-user-gear mr-2"></i>
-            Login
+            {config.loginLabel || "Login"}
           </Link>
         </nav>
 
@@ -81,10 +90,12 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
           <div className="flex flex-col p-8 space-y-6">
             {config.navigation.map((item) => {
               const isInternal = isInternalLink(item.path);
+              const cleanPath = getCleanPath(item.path);
+
               return isInternal ? (
                 <Link
                   key={item.label}
-                  to={getCleanPath(item.path)}
+                  to={cleanPath}
                   className="text-slate-900 font-black text-lg uppercase tracking-widest px-4 py-4 hover:bg-slate-50 rounded-2xl transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -106,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
               className="bg-emerald-600 text-white font-black py-6 rounded-3xl text-center shadow-2xl mt-4 uppercase tracking-[0.2em] text-xs"
               onClick={() => setIsMenuOpen(false)}
             >
-              Institutional Login
+              {config.loginLabel || "Institutional Login"}
             </Link>
           </div>
         </div>

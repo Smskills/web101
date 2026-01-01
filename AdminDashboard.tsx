@@ -1,21 +1,21 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AppState, Course, Notice, GalleryItem, FormField, SocialLink, PlacementStat, StudentReview, IndustryPartner, LegalSection, CareerService } from '../types.ts';
-import { INITIAL_CONTENT } from '../data/defaultContent.ts';
-import { optimizeImage } from '../utils/imageOptimizer.ts';
+import { AppState, Course, Notice, GalleryItem, FormField, SocialLink, PlacementStat, StudentReview, IndustryPartner, LegalSection, CareerService } from './types.ts';
+import { INITIAL_CONTENT } from './data/defaultContent.ts';
+import { optimizeImage } from './utils/imageOptimizer.ts';
 
 // Modular Sections
-import SiteTab from '../admin/SiteTab.tsx';
-import HomeTab from '../admin/HomeTab.tsx';
-import CoursesTab from '../admin/CoursesTab.tsx';
-import NoticesTab from '../admin/NoticesTab.tsx';
-import GalleryTab from '../admin/GalleryTab.tsx';
-import FormTab from '../admin/FormTab.tsx';
-import ContactTab from '../admin/ContactTab.tsx';
-import FooterTab from '../admin/FooterTab.tsx';
-import PlacementsTab from '../admin/PlacementsTab.tsx';
-import LegalTab from '../admin/LegalTab.tsx';
-import CareerTab from '../admin/CareerTab.tsx';
+import SiteTab from './admin/SiteTab.tsx';
+import HomeTab from './admin/HomeTab.tsx';
+import CoursesTab from './admin/CoursesTab.tsx';
+import NoticesTab from './admin/NoticesTab.tsx';
+import GalleryTab from './admin/GalleryTab.tsx';
+import FormTab from './admin/FormTab.tsx';
+import ContactTab from './admin/ContactTab.tsx';
+import FooterTab from './admin/FooterTab.tsx';
+import PlacementsTab from './admin/PlacementsTab.tsx';
+import LegalTab from './admin/LegalTab.tsx';
+import CareerTab from './admin/CareerTab.tsx';
 
 interface AdminDashboardProps {
   content: AppState;
@@ -443,7 +443,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
         </div>
 
         <div className="flex-grow bg-slate-800 rounded-[2.5rem] p-8 md:p-12 border border-slate-700 shadow-3xl min-h-[70vh]">
-          {/* Fixed: Added missing navigation handlers to SiteTab */}
           {activeTab === 'site' && (
             <SiteTab 
               data={localContent.site} 

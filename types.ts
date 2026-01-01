@@ -10,6 +10,7 @@ export interface SiteConfig {
   name: string;
   tagline: string;
   logo: string;
+  loginLabel?: string;
   contact: {
     email: string;
     phone: string;

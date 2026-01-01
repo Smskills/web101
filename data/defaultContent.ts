@@ -6,6 +6,7 @@ export const INITIAL_CONTENT: AppState = {
     name: "SM Skills Training Institute",
     tagline: "SM Skills Training Institute • ESTD 2024",
     logo: "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png", 
+    loginLabel: "Institutional Login",
     contact: {
       email: "admissions@sm-skills.edu",
       phone: "+1 (555) 2024-SMS",
