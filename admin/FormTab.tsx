@@ -19,8 +19,11 @@ interface FormTabProps {
 }
 
 const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, deleteField, updatePageInfo }) => {
+  // Defensive check for missing formData
+  if (!formData) return <div className="p-10 text-slate-500 font-black uppercase tracking-widest text-center border-2 border-dashed border-slate-700 rounded-[3rem]">No application form data available</div>;
+
   const handleDelete = (id: string, label: string) => {
-    if (window.confirm(`Delete the application field "${label}"? This might break existing application data patterns.`)) {
+    if (window.confirm(`Are you sure you want to permanently delete the application field "${label || 'Untitled'}"? This action cannot be undone.`)) {
       deleteField(id);
     }
   };
@@ -31,7 +34,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
   };
 
   const updateStep = (id: string, field: 'title' | 'description', value: string) => {
-    const nextSteps = formData.roadmapSteps.map(s => s.id === id ? { ...s, [field]: value } : s);
+    const nextSteps = (formData.roadmapSteps || []).map(s => s.id === id ? { ...s, [field]: value } : s);
     updatePageInfo('roadmapSteps', nextSteps);
   };
 
@@ -48,7 +51,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Hero Title</label>
               <input 
-                value={formData.title} 
+                value={formData.title || ''} 
                 onChange={e => updatePageInfo('title', e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-black"
               />
@@ -56,7 +59,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Hero Subtitle</label>
               <textarea 
-                value={formData.description} 
+                value={formData.description || ''} 
                 onChange={e => updatePageInfo('description', e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 font-medium resize-none"
                 rows={2}
@@ -68,7 +71,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Success Title</label>
               <input 
-                value={formData.successTitle} 
+                value={formData.successTitle || ''} 
                 onChange={e => updatePageInfo('successTitle', e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-black"
               />
@@ -76,7 +79,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Success Message</label>
               <textarea 
-                value={formData.successMessage} 
+                value={formData.successMessage || ''} 
                 onChange={e => updatePageInfo('successMessage', e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 font-medium resize-none"
                 rows={2}
@@ -94,7 +97,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
           </h3>
           <div className="space-y-1">
             <input 
-              value={formData.roadmapTitle} 
+              value={formData.roadmapTitle || ''} 
               onChange={e => updatePageInfo('roadmapTitle', e.target.value)}
               className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-[10px] text-white font-black uppercase tracking-widest"
               placeholder="Roadmap Label"
@@ -102,21 +105,21 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {formData.roadmapSteps.map((step, idx) => (
+          {(formData.roadmapSteps || []).map((step, idx) => (
             <div key={step.id} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 space-y-4">
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs">
                   {idx + 1}
                 </span>
                 <input 
-                  value={step.title} 
+                  value={step.title || ''} 
                   onChange={e => updateStep(step.id, 'title', e.target.value)}
                   className="bg-transparent border-b border-slate-700 text-white font-black text-sm outline-none focus:border-emerald-500 w-full"
                   placeholder="Step Title"
                 />
               </div>
               <textarea 
-                value={step.description} 
+                value={step.description || ''} 
                 onChange={e => updateStep(step.id, 'description', e.target.value)}
                 className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-[11px] text-slate-400 font-medium resize-none"
                 rows={2}
@@ -137,18 +140,18 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
         </div>
         
         <div className="space-y-4">
-          {formData.fields.map((field, idx) => (
+          {(formData.fields || []).map((field, idx) => (
             <div key={field.id} className="bg-slate-900/50 p-6 rounded-[1.5rem] border border-slate-700 flex flex-col gap-4 group hover:border-emerald-500/30 transition-all">
               <div className="flex gap-4 items-center">
                 <span className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-emerald-500 border border-slate-700">{idx + 1}</span>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 flex-grow">
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Label</label>
-                    <input value={field.label} onChange={e => updateField(field.id, { label: e.target.value })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white" placeholder="Field Label" />
+                    <input value={field.label || ''} onChange={e => updateField(field.id, { label: e.target.value })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white" placeholder="Field Label" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Type</label>
-                    <select value={field.type} onChange={e => updateField(field.id, { type: e.target.value as any })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-slate-300">
+                    <select value={field.type || 'text'} onChange={e => updateField(field.id, { type: e.target.value as any })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-slate-300">
                         <option value="text">Short Text</option>
                         <option value="email">Email</option>
                         <option value="tel">Phone</option>
@@ -160,7 +163,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Placeholder</label>
-                    <input value={field.placeholder} onChange={e => updateField(field.id, { placeholder: e.target.value })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white" placeholder="Placeholder..." />
+                    <input value={field.placeholder || ''} onChange={e => updateField(field.id, { placeholder: e.target.value })} className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white" placeholder="Placeholder..." />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 shrink-0">
@@ -174,7 +177,7 @@ const FormTab: React.FC<FormTabProps> = ({ formData, addField, updateField, dele
                 <div className="mt-2 space-y-1 pl-14">
                   <label className="text-[9px] font-black text-emerald-500 uppercase tracking-widest ml-1">Options (Comma Separated)</label>
                   <input 
-                    defaultValue={field.options?.join(', ')} 
+                    defaultValue={(field.options || []).join(', ')} 
                     onBlur={e => updateOptions(field.id, e.target.value)}
                     className="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white font-medium" 
                     placeholder="Option 1, Option 2, Option 3..." 
