@@ -50,6 +50,12 @@ const App: React.FC = () => {
           sections: { ...INITIAL_CONTENT.home.sections, ...(parsed.home?.sections || {}) },
           bigShowcase: { ...INITIAL_CONTENT.home.bigShowcase, ...(parsed.home?.bigShowcase || {}) }
         },
+        enrollmentForm: {
+          ...INITIAL_CONTENT.enrollmentForm,
+          ...(parsed.enrollmentForm || {}),
+          roadmapSteps: parsed.enrollmentForm?.roadmapSteps || INITIAL_CONTENT.enrollmentForm.roadmapSteps,
+          fields: parsed.enrollmentForm?.fields || INITIAL_CONTENT.enrollmentForm.fields
+        },
         about: { ...INITIAL_CONTENT.about, ...parsed.about },
         placements: { ...INITIAL_CONTENT.placements, ...(parsed.placements || {}) },
         legal: { ...INITIAL_CONTENT.legal, ...(parsed.legal || {}) },
@@ -81,7 +87,6 @@ const App: React.FC = () => {
   return (
     <HashRouter>
       <ScrollToTop />
-      {/* Skip to content for A11y */}
       <a 
         href="#main-content" 
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-emerald-600 focus:text-white focus:px-6 focus:py-3 focus:rounded-xl focus:font-black focus:shadow-2xl"

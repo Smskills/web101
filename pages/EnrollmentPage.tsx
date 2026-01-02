@@ -12,16 +12,35 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
-  const { enrollmentForm = { title: 'Application Form', description: '', roadmapTitle: 'Flow', roadmapSteps: [], fields: [], successTitle: 'Done', successMessage: 'Success' }, courses = [], site } = content;
+  // Destructure with comprehensive fallbacks to prevent "undefined" access crashes
+  const { 
+    enrollmentForm = { 
+      title: 'Enrollment Form', 
+      description: '', 
+      roadmapTitle: 'Flow', 
+      roadmapSteps: [], 
+      fields: [], 
+      successTitle: 'Thank You', 
+      successMessage: 'We received your application.' 
+    }, 
+    courses = [], 
+    site = { contact: { phone: 'N/A', email: '', address: '' } } 
+  } = content || {};
 
   useEffect(() => {
     if (!enrollmentForm?.fields) return;
+    
     const initialData: Record<string, string> = {};
-    enrollmentForm.fields.forEach(field => { initialData[field.id] = ''; });
+    enrollmentForm.fields.forEach(field => { 
+      if (field?.id) initialData[field.id] = ''; 
+    });
+    
     const courseFromUrl = searchParams.get('course');
     if (courseFromUrl) {
       const courseField = enrollmentForm.fields.find(f => f.type === 'course-select');
-      if (courseField) { initialData[courseField.id] = decodeURIComponent(courseFromUrl); }
+      if (courseField?.id) { 
+        initialData[courseField.id] = decodeURIComponent(courseFromUrl); 
+      }
     }
     setFormData(initialData);
   }, [enrollmentForm, searchParams]);
@@ -32,7 +51,9 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleChange = (id: string, value: string) => { setFormData(prev => ({ ...prev, [id]: value })); };
+  const handleChange = (id: string, value: string) => { 
+    setFormData(prev => ({ ...prev, [id]: value })); 
+  };
 
   if (submitted) {
     return (
@@ -55,7 +76,6 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header - Fully Customizable */}
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10 max-w-4xl">
@@ -68,7 +88,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
       <div className="container mx-auto px-4 -mt-10 relative z-20 pb-32">
         <div className="max-w-6xl mx-auto bg-white rounded-[3rem] shadow-3xl border border-slate-100 overflow-hidden flex flex-col lg:flex-row">
           
-          {/* Side Roadmap - Fully Customizable */}
+          {/* Side Roadmap */}
           <div className="bg-slate-900 lg:w-96 p-10 md:p-14 text-white shrink-0 relative">
             <div className="relative z-10">
               <h3 className="text-xl md:text-2xl font-black mb-12 text-white uppercase tracking-tighter border-b border-white/5 pb-6">
@@ -78,7 +98,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
               <div className="relative space-y-12">
                 <div className="absolute left-[23px] top-2 bottom-2 w-px bg-gradient-to-b from-emerald-500 via-slate-700 to-slate-800 hidden md:block" aria-hidden="true"></div>
 
-                {enrollmentForm.roadmapSteps.map((step, idx) => (
+                {(enrollmentForm.roadmapSteps || []).map((step, idx) => (
                   <div key={step.id} className="relative flex gap-8 group">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-[0_0_25px_rgba(16,185,129,0.35)] relative z-20 border border-emerald-400/30">
                       {idx + 1}
@@ -100,7 +120,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                   <i className="fa-solid fa-headset"></i>
                 </div>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Help Desk</p>
-                <p className="text-xl font-black text-white group-hover:text-emerald-400 transition-colors">{site.contact.phone}</p>
+                <p className="text-xl font-black text-white group-hover:text-emerald-400 transition-colors">{site?.contact?.phone || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -109,9 +129,8 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
           <div className="flex-grow p-10 md:p-16 lg:p-20">
             <form onSubmit={handleSubmit} className="space-y-8 md:space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8 md:gap-y-10">
-                {enrollmentForm.fields?.map(field => {
-                  // Standard web logic: Address and Big Boxes take 2 cols. PIN/City/State take 1 col.
-                  const isWide = field.type === 'textarea' || field.label.toLowerCase().includes('name');
+                {(enrollmentForm.fields || []).map(field => {
+                  const isWide = field.type === 'textarea' || (field.label && field.label.toLowerCase().includes('name'));
                   
                   return (
                     <div key={field.id} className={`space-y-3 ${isWide ? 'md:col-span-2' : 'md:col-span-1'}`}>
@@ -139,7 +158,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                             className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer"
                           >
                             <option value="">{field.placeholder || 'Select Track'}</option>
-                            {courses.filter(c => c.status === 'Active').map(course => (
+                            {(courses || []).filter(c => c?.status === 'Active').map(course => (
                               <option key={course.id} value={course.name}>
                                 {course.name} {course.price ? ` — ${course.price}` : ''}
                               </option>
@@ -187,7 +206,6 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                 <button type="submit" className="w-full py-6 md:py-8 bg-emerald-600 text-white font-black text-base md:text-lg rounded-3xl hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 transition-all shadow-2xl shadow-emerald-600/20 active:scale-[0.98] uppercase tracking-[0.2em] mt-8">
                   Submit Admission Request <i className="fa-solid fa-paper-plane ml-3 text-sm" aria-hidden="true"></i>
                 </button>
-
                 <p className="text-[11px] text-slate-500 font-medium text-center leading-relaxed max-w-lg mx-auto">
                   By submitting this application, you acknowledge that you have read and agree to our <Link to="/privacy-policy" className="text-emerald-600 font-black hover:underline">Privacy Policy</Link> and <Link to="/terms-of-service" className="text-emerald-600 font-black hover:underline">Terms of Service</Link>.
                 </p>
