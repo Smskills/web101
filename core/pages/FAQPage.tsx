@@ -1,16 +1,18 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FAQItem, SiteConfig } from '../types.ts';
+import { AppState, SiteConfig } from '../types.ts';
 import PageStateGuard from '../components/PageStateGuard.tsx';
 
 interface FAQPageProps {
-  faqs: FAQItem[];
+  faqsState: AppState['faqs'];
   contact: SiteConfig['contact'];
 }
 
-const FAQPage: React.FC<FAQPageProps> = ({ faqs, contact }) => {
+const FAQPage: React.FC<FAQPageProps> = ({ faqsState, contact }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const { list, pageMeta } = faqsState;
 
   const toggleItem = (id: string) => {
     const next = new Set(openItems);
@@ -19,13 +21,13 @@ const FAQPage: React.FC<FAQPageProps> = ({ faqs, contact }) => {
     setOpenItems(next);
   };
 
-  const filteredFaqs = faqs.filter(faq => 
+  const filteredFaqs = list.filter(faq => 
     faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
     faq.answer.toLowerCase().includes(searchTerm.toLowerCase()) ||
     faq.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const categories = Array.from(new Set(faqs.map(f => f.category)));
+  const categories = Array.from(new Set(list.map(f => f.category)));
   const sanitizedPhone = contact.phone.replace(/[^\d+]/g, '');
 
   const emptyFallback = (
@@ -45,8 +47,9 @@ const FAQPage: React.FC<FAQPageProps> = ({ faqs, contact }) => {
     <div className="min-h-screen bg-slate-50">
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden text-center">
         <div className="container mx-auto px-4 relative z-10 max-w-4xl">
-          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Institutional Assistance</span>
-          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">Help Center</h1>
+          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">{pageMeta.tagline}</span>
+          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">{pageMeta.title}</h1>
+          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">{pageMeta.subtitle}</p>
           <div className="mt-12 max-w-2xl mx-auto relative">
             <label htmlFor="faq-search" className="sr-only">Search help topics</label>
             <input 

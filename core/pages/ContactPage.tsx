@@ -1,54 +1,31 @@
+
 import React, { useState } from 'react';
-import { SiteConfig } from '../types';
-import { validateEmail, validateRequired } from '../utils/validation.ts';
+import { SiteConfig, AppState } from '../types';
 
 interface ContactPageProps {
   config: SiteConfig['contact'];
   social?: SiteConfig['social'];
+  content?: AppState;
 }
 
-const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
+const ContactPage: React.FC<ContactPageProps> = ({ config, social = [], content }) => {
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [formData, setFormData] = useState<Record<string, string>>({});
 
-  const validateForm = (formData: FormData): boolean => {
-    const newErrors: Record<string, string> = {};
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const message = formData.get('message') as string;
+  const contactForm = content?.contactForm || { title: "Send Enquiry", fields: [] };
+  // Fix: Access the list property from the courses object instead of using it as an array
+  const coursesList = content?.courses?.list || [];
 
-    const nameErr = validateRequired(name, 'Full Name');
-    if (nameErr) newErrors.name = nameErr;
-
-    const emailErr = validateEmail(email);
-    if (emailErr) newErrors.email = emailErr;
-
-    const msgErr = validateRequired(message, 'Message');
-    if (msgErr) newErrors.message = msgErr;
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    if (validateForm(formData)) {
-      setSubmitted(true);
-    } else {
-      // Mark all as touched to show errors
-      setTouched({ name: true, email: true, message: true });
-    }
+    setSubmitted(true);
   };
 
-  const handleBlur = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
+  const handleChange = (id: string, value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
 
   const btnPrimary = "w-full py-6 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 transition-all shadow-xl shadow-emerald-600/20 active:scale-[0.98] uppercase tracking-widest text-[11px]";
-  const labelText = "text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 mb-2 block";
-  const errorText = "text-[10px] text-red-500 font-bold mt-1 ml-1";
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -63,11 +40,12 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
 
       <div className="container mx-auto px-4 -mt-10 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          
           <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="p-10 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 group hover:border-emerald-500 transition-all">
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                  <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
+                  <i className="fa-solid fa-location-dot"></i>
                 </div>
                 <div>
                   <h4 className="font-black text-slate-900 text-lg mb-2 uppercase tracking-tight">Our Campus</h4>
@@ -77,7 +55,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
 
               <div className="p-10 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 group hover:border-emerald-500 transition-all">
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                  <i className="fa-solid fa-phone" aria-hidden="true"></i>
+                  <i className="fa-solid fa-phone"></i>
                 </div>
                 <div>
                   <h4 className="font-black text-slate-900 text-lg mb-2 uppercase tracking-tight">Call Center</h4>
@@ -97,9 +75,9 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-4 px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-emerald-500 hover:text-emerald-600 transition-all group"
+                      className="flex items-center gap-4 px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-emerald-500 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-all group"
                     >
-                      <i className={`fa-brands ${item.icon} text-xl group-hover:scale-110 transition-transform`} aria-hidden="true"></i>
+                      <i className={`fa-brands ${item.icon} text-xl group-hover:scale-110 transition-transform`}></i>
                       <span className="font-black text-xs uppercase tracking-widest">{item.platform}</span>
                     </a>
                   ))}
@@ -125,7 +103,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
             {submitted ? (
               <div className="text-center py-24" role="alert" aria-live="polite">
                 <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-4xl mx-auto mb-10 shadow-xl animate-bounce">
-                  <i className="fa-solid fa-check" aria-hidden="true"></i>
+                  <i className="fa-solid fa-check"></i>
                 </div>
                 <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight">Message Received</h2>
                 <p className="text-slate-500 mb-12 text-lg font-medium">Thank you for reaching out. An institutional advisor will contact you within 24 hours.</p>
@@ -139,60 +117,86 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [] }) => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-10" noValidate>
                 <div className="mb-10">
-                  <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-4">Send Enquiry</h2>
+                  <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-4">{contactForm.title}</h2>
                   <div className="w-16 h-1.5 bg-emerald-500 rounded-full"></div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="flex flex-col">
-                    <label htmlFor="form-name" className={labelText}>Full Name</label>
-                    <input 
-                      id="form-name"
-                      name="name"
-                      required 
-                      aria-required="true"
-                      aria-invalid={touched.name && !!errors.name}
-                      aria-describedby={touched.name && errors.name ? "error-name" : undefined}
-                      type="text" 
-                      className={`w-full px-8 py-5 bg-slate-50 border ${touched.name && errors.name ? 'border-red-500' : 'border-slate-100'} rounded-2xl focus:border-emerald-500 outline-none transition-all`} 
-                      placeholder="e.g. John Doe" 
-                      onBlur={() => handleBlur('name')}
-                    />
-                    {touched.name && errors.name && <span id="error-name" className={errorText}>{errors.name}</span>}
-                  </div>
-                  <div className="flex flex-col">
-                    <label htmlFor="form-email" className={labelText}>Email Address</label>
-                    <input 
-                      id="form-email"
-                      name="email"
-                      required 
-                      aria-required="true"
-                      aria-invalid={touched.email && !!errors.email}
-                      aria-describedby={touched.email && errors.email ? "error-email" : undefined}
-                      type="email" 
-                      className={`w-full px-8 py-5 bg-slate-50 border ${touched.email && errors.email ? 'border-red-500' : 'border-slate-100'} rounded-2xl focus:border-emerald-500 outline-none transition-all`} 
-                      placeholder="john@institute.edu" 
-                      onBlur={() => handleBlur('email')}
-                    />
-                    {touched.email && errors.email && <span id="error-email" className={errorText}>{errors.email}</span>}
-                  </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                  {contactForm.fields.map(field => {
+                    const isWide = field.type === 'textarea' || (field.label && field.label.toLowerCase().includes('name'));
+                    
+                    return (
+                      <div key={field.id} className={`space-y-3 ${isWide ? 'md:col-span-2' : 'md:col-span-1'}`}>
+                        <label htmlFor={`field-${field.id}`} className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 block">
+                          {field.label} {field.required && <span className="text-emerald-600">*</span>}
+                        </label>
+                        
+                        {field.type === 'textarea' ? (
+                          <textarea 
+                            id={`field-${field.id}`}
+                            required={field.required}
+                            value={formData[field.id] || ''}
+                            onChange={(e) => handleChange(field.id, e.target.value)}
+                            rows={5}
+                            className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-medium text-slate-900 resize-none placeholder-slate-300 shadow-sm"
+                            placeholder={field.placeholder}
+                          />
+                        ) : field.type === 'course-select' ? (
+                          <div className="relative">
+                            <select 
+                              id={`field-${field.id}`}
+                              required={field.required}
+                              value={formData[field.id] || ''}
+                              onChange={(e) => handleChange(field.id, e.target.value)}
+                              className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer"
+                            >
+                              <option value="">{field.placeholder || 'Select Track'}</option>
+                              {/* Fix: Access the list property from the courses object instead of using it as an array */}
+                              {coursesList.filter(c => c.status === 'Active').map(course => (
+                                <option key={course.id} value={course.name}>{course.name}</option>
+                              ))}
+                            </select>
+                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                              <i className="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                          </div>
+                        ) : field.type === 'select' ? (
+                          <div className="relative">
+                            <select 
+                              id={`field-${field.id}`}
+                              required={field.required}
+                              value={formData[field.id] || ''}
+                              onChange={(e) => handleChange(field.id, e.target.value)}
+                              className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer"
+                            >
+                              <option value="">{field.placeholder || 'Choose Option'}</option>
+                              {field.options?.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                              <i className="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                          </div>
+                        ) : (
+                          <input 
+                            id={`field-${field.id}`}
+                            required={field.required}
+                            type={field.type}
+                            value={formData[field.id] || ''}
+                            onChange={(e) => handleChange(field.id, e.target.value)}
+                            className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder-slate-300 shadow-sm"
+                            placeholder={field.placeholder}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex flex-col">
-                  <label htmlFor="form-message" className={labelText}>How can we help?</label>
-                  <textarea 
-                    id="form-message"
-                    name="message"
-                    required
-                    aria-required="true"
-                    aria-invalid={touched.message && !!errors.message}
-                    aria-describedby={touched.message && errors.message ? "error-message" : undefined}
-                    rows={6} 
-                    className={`w-full px-8 py-5 bg-slate-50 border ${touched.message && errors.message ? 'border-red-500' : 'border-slate-100'} rounded-2xl focus:border-emerald-500 outline-none transition-all resize-none`} 
-                    placeholder="Describe your inquiry..." 
-                    onBlur={() => handleBlur('message')}
-                  />
-                  {touched.message && errors.message && <span id="error-message" className={errorText}>{errors.message}</span>}
-                </div>
-                <button type="submit" className={btnPrimary}>Submit Official Inquiry</button>
+
+                <button type="submit" className={btnPrimary}>
+                  Submit Official Inquiry <i className="fa-solid fa-paper-plane ml-3 text-sm"></i>
+                </button>
               </form>
             )}
           </div>

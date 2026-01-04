@@ -1,8 +1,25 @@
+
 export interface SocialLink {
   id: string;
   platform: string;
   url: string;
   icon: string;
+}
+
+export interface ThemeConfig {
+  primary: string;
+  secondary: string;
+  accent: string;
+  radius: 'none' | 'small' | 'medium' | 'large' | 'full';
+}
+
+export interface CustomPage {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  visible: boolean;
+  showHeader: boolean;
 }
 
 export interface SiteConfig {
@@ -73,6 +90,55 @@ export interface HomeConfig {
     contact: boolean;
     industryTieups: boolean;
     placementReviews: boolean;
+    highlights: boolean;
+    bigShowcase: boolean;
+  };
+  sectionOrder: string[]; 
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+}
+
+export interface AboutState {
+  beginning: {
+    label: string;
+    title: string;
+    story: string;
+    image: string;
+  };
+  learning: {
+    label: string;
+    title: string;
+    description: string;
+    image1: string;
+    image2: string;
+    caption1: string;
+    caption2: string;
+  };
+  faculty: {
+    label: string;
+    title: string;
+    description: string;
+    members: TeamMember[];
+  };
+  vision: {
+    label: string;
+    title: string;
+    content: string;
+    values: string[];
+    image: string;
+  };
+  achievements: {
+    label: string;
+    title: string;
+    image: string;
+    stats: Array<{ label: string; value: string }>;
+    ctaLabel: string;
   };
 }
 
@@ -126,35 +192,55 @@ export interface RoadmapStep {
   description: string;
 }
 
+export interface PageMeta {
+  title: string;
+  subtitle: string;
+  tagline?: string;
+}
+
 export interface AppState {
   site: SiteConfig;
+  theme: ThemeConfig;
   home: HomeConfig;
-  courses: Course[];
-  notices: Notice[];
-  gallery: GalleryItem[];
-  faqs: FAQItem[];
+  courses: {
+    list: Course[];
+    pageMeta: PageMeta;
+  };
+  notices: {
+    list: Notice[];
+    pageMeta: PageMeta;
+  };
+  gallery: {
+    list: GalleryItem[];
+    pageMeta: PageMeta;
+  };
+  faqs: {
+    list: FAQItem[];
+    pageMeta: PageMeta;
+  };
+  customPages: CustomPage[];
   galleryMetadata?: Record<string, string>;
   enrollmentForm: {
     title: string;
     description: string;
     successTitle: string;
     successMessage: string;
-    helpPhone?: string;
     roadmapTitle: string;
     roadmapSteps: RoadmapStep[];
     fields: FormField[];
   };
-  about: {
-    intro: string;
-    mission: string;
-    vision: string;
-    timeline: Array<{ year: string; event: string; }>;
+  contactForm: {
+    title: string;
+    fields: FormField[];
   };
+  about: AboutState;
   placements: {
+    pageMeta: PageMeta;
     stats: PlacementStat[];
     reviews: StudentReview[];
     partners: IndustryPartner[];
     pageDescription: string;
+    wallTitle: string;
   };
   legal: {
     privacy: {
@@ -169,6 +255,7 @@ export interface AppState {
     };
   };
   career: {
+    pageMeta: PageMeta;
     hero: {
       title: string;
       subtitle: string;

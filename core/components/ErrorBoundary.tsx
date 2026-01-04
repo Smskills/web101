@@ -1,9 +1,8 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   /**
    * Children components to be guarded by the error boundary.
-   * Made optional to resolve TypeScript JSX validation errors in index.tsx.
    */
   children?: ReactNode;
 }
@@ -16,14 +15,11 @@ interface State {
  * Global Error Boundary component to protect the application from 
  * total crashes during runtime rendering exceptions.
  */
-// Fix: Import Component directly and extend it with generic Props and State to ensure property inheritance
-export default class ErrorBoundary extends Component<Props, State> {
-  // Initialize state as a class property
+// Use React.Component with explicit generic types to ensure the compiler recognizes inherited properties
+export default class ErrorBoundary extends React.Component<Props, State> {
+  // Fix for line 22: Initializing state as a class property rather than in a constructor 
+  // to avoid specific TypeScript issues with inherited property access.
   public state: State = { hasError: false };
-
-  constructor(props: Props) {
-    super(props);
-  }
 
   public static getDerivedStateFromError(_: Error): State {
     // Update state so the next render will show the fallback UI.
@@ -35,8 +31,8 @@ export default class ErrorBoundary extends Component<Props, State> {
     console.error("Critical rendering exception caught by boundary:", error, errorInfo);
   }
 
-  public render() {
-    // Accessing state which is correctly recognized due to inheritance from Component
+  public render(): ReactNode {
+    // Fix for line 37: Correctly accessing 'state' inherited from React.Component
     if (this.state.hasError) {
       // Minimal, neutral fallback UI using existing global Tailwind and FontAwesome
       return (
@@ -60,7 +56,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fix: Correctly accessing children via this.props through component inheritance
+    // Fix for line 61: Correctly accessing 'props' inherited from React.Component
     return this.props.children;
   }
 }

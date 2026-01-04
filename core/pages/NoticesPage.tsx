@@ -1,15 +1,17 @@
+
 import React, { useState } from 'react';
-import { Notice } from '../types.ts';
+import { AppState } from '../types.ts';
 import FormattedText from '../components/FormattedText.tsx';
 import PageStateGuard from '../components/PageStateGuard.tsx';
 
 interface NoticesPageProps {
-  notices: Notice[];
+  noticesState: AppState['notices'];
 }
 
-const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
+const NoticesPage: React.FC<NoticesPageProps> = ({ noticesState }) => {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<'All' | 'Urgent' | 'Event' | 'Holiday' | 'New'>('All');
+  const { list, pageMeta } = noticesState;
 
   const getNoticeTheme = (category?: string) => {
     switch(category) {
@@ -21,7 +23,7 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
     }
   };
 
-  const filtered = notices
+  const filtered = list
     .filter(n => activeFilter === 'All' || n.category === activeFilter)
     .filter(n => 
       n.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -49,8 +51,8 @@ const NoticesPage: React.FC<NoticesPageProps> = ({ notices }) => {
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-emerald-600/5 opacity-50 blur-[100px] -translate-y-1/2"></div>
         <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
-           <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Official Feed</span>
-           <h1 className="text-4xl md:text-7xl font-black mb-8 tracking-tighter">Campus Announcements</h1>
+           <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">{pageMeta.tagline}</span>
+           <h1 className="text-4xl md:text-7xl font-black mb-8 tracking-tighter">{pageMeta.title}</h1>
            <div className="flex flex-col md:flex-row gap-4 justify-center">
              <div className="relative flex-grow max-w-md mx-auto md:mx-0">
                <label htmlFor="notice-search" className="sr-only">Search Announcements</label>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Suspense } from 'react';
+
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
 import { AppState } from './types.ts';
-import { getFeatureRoutes } from '../featureRegistry.ts';
 
 // Components
 import Header from './components/Header.tsx';
@@ -23,6 +23,7 @@ import CareerGuidancePage from './pages/CareerGuidancePage.tsx';
 import PlacementReviewPage from './pages/PlacementReviewPage.tsx';
 import FAQPage from './pages/FAQPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
+import CustomPageView from './pages/CustomPageView.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -33,34 +34,50 @@ const App: React.FC = () => {
     try {
       const parsed = JSON.parse(saved);
       
+      // Helper for robust merging of objects
+      const deepMerge = (target: any, source: any) => {
+        if (!source) return target;
+        const result = { ...target };
+        for (const key in source) {
+          if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+             result[key] = deepMerge(target[key] || {}, source[key]);
+          } else {
+             result[key] = source[key];
+          }
+        }
+        return result;
+      };
+
       const mergedState: AppState = {
         ...INITIAL_CONTENT,
-        ...parsed,
-        site: { 
-          ...INITIAL_CONTENT.site, 
-          ...parsed.site,
-          contact: { ...INITIAL_CONTENT.site.contact, ...(parsed.site?.contact || {}) },
-          footer: { ...INITIAL_CONTENT.site.footer, ...(parsed.site?.footer || {}) }
+        site: deepMerge(INITIAL_CONTENT.site, parsed.site),
+        theme: deepMerge(INITIAL_CONTENT.theme, parsed.theme),
+        home: deepMerge(INITIAL_CONTENT.home, parsed.home),
+        about: deepMerge(INITIAL_CONTENT.about, parsed.about),
+        enrollmentForm: deepMerge(INITIAL_CONTENT.enrollmentForm, parsed.enrollmentForm),
+        contactForm: deepMerge(INITIAL_CONTENT.contactForm, parsed.contactForm),
+        placements: deepMerge(INITIAL_CONTENT.placements, parsed.placements),
+        legal: deepMerge(INITIAL_CONTENT.legal, parsed.legal),
+        career: deepMerge(INITIAL_CONTENT.career, parsed.career),
+        // Handle list-based objects carefully
+        courses: {
+          list: parsed.courses?.list || (Array.isArray(parsed.courses) ? parsed.courses : INITIAL_CONTENT.courses.list),
+          pageMeta: deepMerge(INITIAL_CONTENT.courses.pageMeta, parsed.courses?.pageMeta)
         },
-        home: { 
-          ...INITIAL_CONTENT.home, 
-          ...parsed.home,
-          sectionLabels: { ...INITIAL_CONTENT.home.sectionLabels, ...(parsed.home?.sectionLabels || {}) },
-          ctaBlock: { ...INITIAL_CONTENT.home.ctaBlock, ...(parsed.home?.ctaBlock || {}) },
-          sections: { ...INITIAL_CONTENT.home.sections, ...(parsed.home?.sections || {}) },
-          bigShowcase: { ...INITIAL_CONTENT.home.bigShowcase, ...(parsed.home?.bigShowcase || {}) }
+        notices: {
+          list: parsed.notices?.list || (Array.isArray(parsed.notices) ? parsed.notices : INITIAL_CONTENT.notices.list),
+          pageMeta: deepMerge(INITIAL_CONTENT.notices.pageMeta, parsed.notices?.pageMeta)
         },
-        enrollmentForm: {
-          ...INITIAL_CONTENT.enrollmentForm,
-          ...(parsed.enrollmentForm || {}),
-          roadmapSteps: parsed.enrollmentForm?.roadmapSteps || INITIAL_CONTENT.enrollmentForm.roadmapSteps,
-          fields: parsed.enrollmentForm?.fields || INITIAL_CONTENT.enrollmentForm.fields
+        gallery: {
+          list: parsed.gallery?.list || (Array.isArray(parsed.gallery) ? parsed.gallery : INITIAL_CONTENT.gallery.list),
+          pageMeta: deepMerge(INITIAL_CONTENT.gallery.pageMeta, parsed.gallery?.pageMeta)
         },
-        about: { ...INITIAL_CONTENT.about, ...parsed.about },
-        placements: { ...INITIAL_CONTENT.placements, ...(parsed.placements || {}) },
-        legal: { ...INITIAL_CONTENT.legal, ...(parsed.legal || {}) },
-        career: { ...INITIAL_CONTENT.career, ...(parsed.career || {}) },
-        faqs: parsed.faqs || INITIAL_CONTENT.faqs
+        faqs: {
+          list: parsed.faqs?.list || (Array.isArray(parsed.faqs) ? parsed.faqs : INITIAL_CONTENT.faqs.list),
+          pageMeta: deepMerge(INITIAL_CONTENT.faqs.pageMeta, parsed.faqs?.pageMeta)
+        },
+        customPages: parsed.customPages || INITIAL_CONTENT.customPages,
+        galleryMetadata: parsed.galleryMetadata || INITIAL_CONTENT.galleryMetadata
       };
 
       return mergedState;
@@ -69,6 +86,29 @@ const App: React.FC = () => {
       return INITIAL_CONTENT;
     }
   });
+
+  const brandingStyles = useMemo(() => {
+    const { primary, secondary, accent, radius } = content.theme;
+    const borderRadius = radius === 'none' ? '0' : radius === 'small' ? '0.5rem' : radius === 'medium' ? '1rem' : radius === 'large' ? '2.5rem' : '9999px';
+    
+    return `
+      :root {
+        --brand-primary: ${primary};
+        --brand-secondary: ${secondary};
+        --brand-accent: ${accent};
+        --brand-radius: ${borderRadius};
+      }
+      .bg-emerald-600 { background-color: var(--brand-primary) !important; }
+      .text-emerald-600 { color: var(--brand-primary) !important; }
+      .border-emerald-600 { border-color: var(--brand-primary) !important; }
+      .bg-slate-900 { background-color: var(--brand-secondary) !important; }
+      .bg-emerald-500 { background-color: var(--brand-accent) !important; }
+      .text-emerald-500 { color: var(--brand-accent) !important; }
+      .rounded-\\[2\\.5rem\\], .rounded-\\[3\\.5rem\\], .rounded-\\[3rem\\], .rounded-3xl, .rounded-2xl {
+         border-radius: var(--brand-radius) !important;
+      }
+    `;
+  }, [content.theme]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsInitializing(false), 800);
@@ -86,39 +126,29 @@ const App: React.FC = () => {
 
   return (
     <HashRouter>
+      <style>{brandingStyles}</style>
       <ScrollToTop />
-      <a 
-        href="#main-content" 
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-emerald-600 focus:text-white focus:px-6 focus:py-3 focus:rounded-xl focus:font-black focus:shadow-2xl"
-      >
-        Skip to Content
-      </a>
-      
       <div className="flex flex-col min-h-screen overflow-x-hidden">
         <Header config={content.site} />
         <main id="main-content" className="flex-grow pt-32 focus:outline-none" tabIndex={-1}>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-600"></i></div>}>
             <Routes>
-              {/* CORE ROUTES */}
               <Route path="/" element={<HomePage content={content} />} />
               <Route path="/about" element={<AboutPage content={content.about} siteName={content.site.name} />} />
-              <Route path="/courses" element={<CoursesPage courses={content.courses} isLoading={isInitializing} />} />
-              <Route path="/notices" element={<NoticesPage notices={content.notices} />} />
+              <Route path="/courses" element={<CoursesPage coursesState={content.courses} isLoading={isInitializing} />} />
+              <Route path="/notices" element={<NoticesPage noticesState={content.notices} />} />
               <Route path="/gallery" element={<GalleryPage content={content} />} />
-              <Route path="/faq" element={<FAQPage faqs={content.faqs} contact={content.site.contact} />} />
-              <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} />} />
+              <Route path="/faq" element={<FAQPage faqsState={content.faqs} contact={content.site.contact} />} />
+              <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} content={content} />} />
               <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
               <Route path="/enroll" element={<EnrollmentPage content={content} />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage siteName={content.site.name} data={content.legal.privacy} />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
-              
-              {/* FEATURE INJECTED ROUTES */}
-              {getFeatureRoutes().map((featRoute) => (
-                <Route key={featRoute.path} path={featRoute.path} element={<featRoute.component content={content} onUpdate={updateContent} />} />
+              {content.customPages.filter(p => p.visible).map(page => (
+                <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}
-
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
@@ -131,19 +161,15 @@ const App: React.FC = () => {
 
 const ScrollToTop: React.FC = () => {
   const { pathname, hash } = useLocation();
-  
   useEffect(() => {
     if (hash) {
       const id = hash.replace('#', '');
       const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
     } else {
       window.scrollTo(0, 0);
     }
   }, [pathname, hash]);
-
   return null;
 };
 

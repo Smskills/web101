@@ -1,17 +1,20 @@
+
 import React from 'react';
-import { Course } from '../types.ts';
+import { Course, PageMeta, AppState } from '../types.ts';
 
 interface CoursesTabProps {
-  courses: Course[];
+  coursesState: AppState['courses'];
   updateCourseItem: (id: string, field: keyof Course, value: any) => void;
+  updatePageMeta: (field: keyof PageMeta, value: string) => void;
   onCourseImageClick: (id: string) => void;
   addItem: () => void;
   deleteItem: (id: string) => void;
 }
 
 const CoursesTab: React.FC<CoursesTabProps> = ({ 
-  courses, 
+  coursesState, 
   updateCourseItem, 
+  updatePageMeta,
   onCourseImageClick, 
   addItem, 
   deleteItem 
@@ -22,18 +25,38 @@ const CoursesTab: React.FC<CoursesTabProps> = ({
     }
   };
 
+  const { list, pageMeta } = coursesState;
+
   return (
     <div className="space-y-12 animate-fade-in">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-6">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tight shrink-0">Program Management</h2>
-        </div>
+        <h2 className="text-2xl font-black text-white uppercase tracking-tight">Program Management</h2>
         <button onClick={addItem} className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-full text-xs font-black shadow-xl flex items-center gap-2 transition-all active:scale-95">
           <i className="fa-solid fa-plus"></i> ADD PROGRAM
         </button>
       </div>
+
+      {/* Page Header Customization */}
+      <div className="bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700 space-y-6">
+        <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-heading"></i> PAGE HEADER</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Main Page Title</label>
+            <input value={pageMeta.title} onChange={e => updatePageMeta('title', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Top Tagline</label>
+            <input value={pageMeta.tagline} onChange={e => updatePageMeta('tagline', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Intro Subtitle</label>
+          <textarea value={pageMeta.subtitle} onChange={e => updatePageMeta('subtitle', e.target.value)} rows={2} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-300 resize-none" />
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-8">
-        {courses.map(course => (
+        {list.map(course => (
           <div key={course.id} className="bg-slate-900/50 p-8 rounded-[2rem] border border-slate-700 group transition-all hover:border-emerald-500/30">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               <div className="lg:col-span-1">

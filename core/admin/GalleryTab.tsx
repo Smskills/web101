@@ -1,28 +1,32 @@
 
 import React, { useState } from 'react';
-import { GalleryItem } from '../types.ts';
+import { GalleryItem, PageMeta, AppState } from '../types.ts';
 
 interface GalleryTabProps {
-  gallery: GalleryItem[];
+  galleryState: AppState['gallery'];
   galleryMetadata?: Record<string, string>;
   updateGalleryItem: (id: string, field: keyof GalleryItem, value: string) => void;
+  updatePageMeta: (field: keyof PageMeta, value: string) => void;
   deleteItem: (id: string) => void;
   triggerUpload: (category: string) => void;
   triggerThumbnailUpload: (category: string) => void;
 }
 
 const GalleryTab: React.FC<GalleryTabProps> = ({ 
-  gallery, 
+  galleryState, 
   galleryMetadata, 
   updateGalleryItem, 
+  updatePageMeta,
   deleteItem, 
   triggerUpload, 
   triggerThumbnailUpload 
 }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
+  const { list, pageMeta } = galleryState;
+
   const galleryCategories = Array.from(new Set([
     'Campus', 'Events', 'Classroom', 'Achievement', 'Project', 
-    ...gallery.map(item => item.category)
+    ...list.map(item => item.category)
   ]));
 
   const handleDelete = (id: string) => {
@@ -34,9 +38,7 @@ const GalleryTab: React.FC<GalleryTabProps> = ({
   return (
     <div className="space-y-12 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex items-center gap-6">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tight shrink-0">Media Albums</h2>
-        </div>
+        <h2 className="text-2xl font-black text-white uppercase tracking-tight shrink-0">Media Albums</h2>
         <div className="flex gap-2">
           <input 
             placeholder="New Album Name..." 
@@ -52,8 +54,28 @@ const GalleryTab: React.FC<GalleryTabProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Page Header Customization */}
+      <div className="bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700 space-y-6">
+        <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-heading"></i> PAGE HEADER</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Main Page Title</label>
+            <input value={pageMeta.title} onChange={e => updatePageMeta('title', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Top Tagline</label>
+            <input value={pageMeta.tagline} onChange={e => updatePageMeta('tagline', e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Intro Subtitle</label>
+          <textarea value={pageMeta.subtitle} onChange={e => updatePageMeta('subtitle', e.target.value)} rows={2} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-300 resize-none" />
+        </div>
+      </div>
+
       {galleryCategories.map(category => {
-        const items = gallery.filter(item => item.category === category);
+        const items = list.filter(item => item.category === category);
         const thumbnail = galleryMetadata?.[category];
         return (
           <div key={category} className="space-y-6 bg-slate-900/20 p-6 rounded-[2rem] border border-slate-700/30">

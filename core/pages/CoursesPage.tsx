@@ -1,21 +1,23 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Course } from '../types';
+import { AppState } from '../types';
 import FormattedText from '../components/FormattedText.tsx';
 import { CardSkeleton } from '../components/Skeleton.tsx';
 import PageStateGuard from '../components/PageStateGuard.tsx';
 
 interface CoursesPageProps {
-  courses: Course[];
+  coursesState: AppState['courses'];
   isLoading?: boolean;
 }
 
-const CoursesPage: React.FC<CoursesPageProps> = ({ courses, isLoading = false }) => {
+const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = false }) => {
   const [filter, setFilter] = useState<'All' | 'Online' | 'Offline' | 'Hybrid'>('All');
+  const { list, pageMeta } = coursesState;
   
   const filteredCourses = filter === 'All' 
-    ? courses 
-    : courses.filter(c => c.mode === filter);
+    ? list 
+    : list.filter(c => c.mode === filter);
 
   const activeCourses = filteredCourses.filter(c => c.status === 'Active');
 
@@ -43,9 +45,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ courses, isLoading = false })
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10 max-w-4xl">
-          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Professional Curricula</span>
-          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">Technical Programs</h1>
-          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">Browse through our industry-verified technical tracks optimized for global employability.</p>
+          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">{pageMeta.tagline}</span>
+          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">{pageMeta.title}</h1>
+          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">{pageMeta.subtitle}</p>
         </div>
       </section>
 

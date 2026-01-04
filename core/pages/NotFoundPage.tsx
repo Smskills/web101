@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -15,15 +16,26 @@ const NotFoundPage: React.FC = () => {
         </div>
         <h1 className="text-4xl font-black text-slate-900 mb-6 tracking-tight uppercase">Path Not Found</h1>
         <p className="text-slate-500 text-lg mb-12 font-medium leading-relaxed">
-          The page you are looking for might have been moved or renamed.
+          The page you are looking for might have been moved, renamed, or is temporarily unavailable. Let's get you back on track to your career goals.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 
             to="/" 
-            className="px-10 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all shadow-2xl active:scale-95 text-xs uppercase tracking-widest"
+            className="px-10 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-emerald-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-900/20 transition-all shadow-2xl active:scale-95 text-xs uppercase tracking-widest"
           >
-            <i className="fa-solid fa-house mr-2"></i> Return Home
+            <i className="fa-solid fa-house mr-2" aria-hidden="true"></i> Return Home
           </Link>
+          <Link 
+            to="/courses" 
+            className="px-10 py-5 bg-white border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 transition-all text-xs uppercase tracking-widest"
+          >
+            Browse Programs
+          </Link>
+        </div>
+        <div className="mt-20 pt-10 border-t border-slate-100">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+            S M Skills • Information Desk
+          </p>
         </div>
       </div>
     </div>

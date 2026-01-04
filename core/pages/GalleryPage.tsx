@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { AppState, GalleryItem } from '../types.ts';
 import PageStateGuard from '../components/PageStateGuard.tsx';
@@ -13,7 +14,7 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
   const [fullscreenItem, setFullscreenItem] = useState<GalleryItem | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
-  const categories: string[] = Array.from(new Set(gallery.map(item => item.category)));
+  const categories: string[] = Array.from(new Set(gallery.list.map(item => item.category)));
   
   const handleAlbumClick = (category: string) => {
     setSelectedCategory(category);
@@ -21,16 +22,14 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
   };
 
   const filteredPhotos = selectedCategory 
-    ? gallery.filter(item => item.category === selectedCategory)
+    ? gallery.list.filter(item => item.category === selectedCategory)
     : [];
 
   useEffect(() => {
     if (!fullscreenItem) return;
-    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setFullscreenItem(null);
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [fullscreenItem]);
@@ -64,9 +63,8 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
               <img 
                 src={fullscreenItem.url} 
                 className="max-w-full max-h-[85vh] object-contain block mx-auto shadow-2xl" 
-                alt={fullscreenItem.title || "Fullscreen view of institutional content"}
+                alt={fullscreenItem.title || ""}
               />
-              
               {fullscreenItem.title && (
                 <div className="mt-4 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-center max-w-2xl">
                   <p className="text-white font-medium text-lg leading-relaxed">
@@ -74,11 +72,9 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
                   </p>
                 </div>
               )}
-
               <button 
                 onClick={(e) => { e.stopPropagation(); setFullscreenItem(null); }}
                 className="absolute -top-12 right-0 text-white text-4xl hover:text-emerald-500 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg"
-                aria-label="Close fullscreen view"
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
@@ -88,15 +84,14 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
 
         <div className="text-center mb-16">
           <span className="text-emerald-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">
-            {view === 'albums' ? 'Visual Archives' : selectedCategory}
+            {view === 'albums' ? gallery.pageMeta.tagline : selectedCategory}
           </span>
           <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-            {view === 'albums' ? 'Our Campus Life' : 'Album Collection'}
+            {view === 'albums' ? gallery.pageMeta.title : 'Album Collection'}
           </h1>
           {view === 'albums' && (
             <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium leading-relaxed">
-              Explore our institute through dedicated albums showcasing classrooms, 
-              projects, and student achievements.
+              {gallery.pageMeta.subtitle}
             </p>
           )}
           
@@ -115,7 +110,7 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" role="list">
               {categories.map((cat: string) => {
                 const thumbnail = galleryMetadata?.[cat];
-                const count = gallery.filter(i => i.category === cat).length;
+                const count = gallery.list.filter(i => i.category === cat).length;
                 
                 return (
                   <button 
@@ -123,7 +118,6 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
                     onClick={() => handleAlbumClick(cat)}
                     role="listitem"
                     className="group relative h-[400px] w-full text-left rounded-[2.5rem] overflow-hidden cursor-pointer shadow-2xl transition-all duration-700 hover:-translate-y-2 focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
-                    aria-label={`Open album ${cat}, containing ${count} photos`}
                   >
                     <img 
                       src={thumbnail || 'https://images.unsplash.com/photo-1523050853063-bd8012fec046'} 
@@ -161,11 +155,10 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
                   onClick={(e) => { triggerRef.current = e.currentTarget; setFullscreenItem(item); }}
                   role="listitem"
                   className="relative block w-full text-left group overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm cursor-zoom-in hover:shadow-2xl transition-all duration-500 break-inside-avoid focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
-                  aria-label={`View photo: ${item.title || 'Institutional achievement'}`}
                 >
                   <img 
                     src={item.url} 
-                    alt={item.title || "Institutional gallery image"} 
+                    alt="" 
                     className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
                   />
                   <div className={`absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 ${!item.title ? 'pointer-events-none' : ''}`}>

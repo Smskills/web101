@@ -1,11 +1,12 @@
+
 import { AppState } from '../types';
 
 export const INITIAL_CONTENT: AppState = {
   site: {
-    name: "SM Skills Training Institute",
-    tagline: "SM Skills Training Institute • ESTD 2024",
+    name: "S M Skills",
+    tagline: "Training Institute • ESTD 2024",
     logo: "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png", 
-    loginLabel: "Institutional Login",
+    loginLabel: "Login",
     contact: {
       email: "admissions@sm-skills.edu",
       phone: "+1 (555) 2024-SMS",
@@ -27,11 +28,11 @@ export const INITIAL_CONTENT: AppState = {
       { label: "Contact", path: "/contact" }
     ],
     footer: {
-      brandDescription: "SM Skills Training Institute (SMS) is a premier center for technical education, providing industry-aligned training designed for immediate employability.",
+      brandDescription: "S M Skills is a premier center for technical education, providing industry-aligned training designed for immediate employability.",
       quickLinksLabel: "Navigation",
       supportLinksLabel: "Resources",
       reachUsLabel: "Connect",
-      bottomText: "SM Skills Training Institute • ESTD 2024",
+      bottomText: "S M Skills • ESTD 2024",
       supportLinks: [
         { label: "Privacy Policy", path: "/privacy-policy" },
         { label: "Terms of Service", path: "/terms-of-service" },
@@ -40,10 +41,16 @@ export const INITIAL_CONTENT: AppState = {
       ]
     }
   },
+  theme: {
+    primary: "#059669",
+    secondary: "#0f172a",
+    accent: "#10b981",
+    radius: "large"
+  },
   home: {
     hero: {
       title: "Master Skills for the Modern Industry",
-      subtitle: "Join SM Skills for specialized training programs. Build your career with veterans.",
+      subtitle: "Join S M Skills for specialized training programs. Build your career with veterans.",
       ctaText: "Explore Courses",
       ctaLink: "/courses",
       bgImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600",
@@ -74,11 +81,11 @@ export const INITIAL_CONTENT: AppState = {
       galleryTitle: "Campus Life",
       gallerySubtitle: "Explore our facilities, classroom interactions, and achievement galleries.",
       placementsTitle: "Our Placement Record",
-      placementsSubtitle: "Celebrating SM Skills graduates who have joined industry-leading organizations.",
+      placementsSubtitle: "Celebrating S M Skills graduates who have joined industry-leading organizations.",
       placementMainLabel: "Success Stories"
     },
     ctaBlock: {
-      title: "Secure Your Future with SM Skills",
+      title: "Secure Your Future with S M Skills",
       subtitle: "Admissions for the 2024 academic cycle are now open. Consult with an advisor today.",
       buttonText: "Begin Application",
       buttonLink: "/enroll",
@@ -96,15 +103,18 @@ export const INITIAL_CONTENT: AppState = {
       gallery: true,
       contact: true,
       industryTieups: true,
-      placementReviews: true
-    }
+      placementReviews: true,
+      highlights: true,
+      bigShowcase: true
+    },
+    sectionOrder: ["highlights", "industryTieups", "placementReviews", "notices", "featuredCourses", "bigShowcase"]
   },
+  customPages: [],
   enrollmentForm: {
     title: "SMS Official Enrollment",
     description: "Please complete the comprehensive academic application form below. Our registrar team evaluates each candidate for program alignment.",
     successTitle: "Application Received",
     successMessage: "Your registration is being processed. An institutional registrar will review your application and contact you within 48 business hours for the next steps.",
-    helpPhone: "+1 (555) 2024-SMS",
     roadmapTitle: "Enrollment Flow",
     roadmapSteps: [
       { id: "s1", title: "Identity Submission", description: "Provide verifiable academic and personal records for initial screening." },
@@ -129,43 +139,101 @@ export const INITIAL_CONTENT: AppState = {
       { id: "f12", label: "Additional Questions / Remarks", type: "textarea", placeholder: "Any specific queries for the registrar?", required: false }
     ]
   },
-  courses: [
-    {
-      id: "1",
-      name: "Software Architecture",
-      duration: "12 Months",
-      mode: "Offline",
-      description: "Comprehensive training on distributed systems and cloud-native engineering.",
-      status: "Active",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
-      price: "$2,200"
-    }
-  ],
-  notices: [
-    {
-      id: "n1",
-      date: "2024-06-01",
-      title: "Summer 2024 Intake Open",
-      description: "Secure your place in our flagship engineering and design programs.",
-      isImportant: true,
-      category: 'New'
-    }
-  ],
-  gallery: [],
-  faqs: [
-    { id: "q1", question: "What is the admission criteria?", answer: "We look for a basic technical aptitude and a passion for learning. Previous experience is not mandatory for foundation tracks.", category: "Admissions" },
-    { id: "q2", question: "Do you provide job assistance?", answer: "Yes, our Placement Cell works with 200+ global partners to ensure high-quality career launches for our graduates.", category: "Placements" }
-  ],
-  about: {
-    intro: "SM Skills Training Institute (SMS) was founded in 2024 with a mission to modernize technical education through practical, industry-first curricula.",
-    mission: "To empower students with the exact skills required by top global employers.",
-    vision: "To be the most trusted name in professional skill development and career launching.",
-    timeline: [
-      { year: "2024", event: "SM Skills Campus Launch" }
+  contactForm: {
+    title: "Send Enquiry",
+    fields: [
+      { id: "c1", label: "Full Name", type: "text", placeholder: "e.g. John Doe", required: true },
+      { id: "c2", label: "Email Address", type: "email", placeholder: "john@institute.edu", required: true },
+      { id: "c3", label: "Course Track", type: "course-select", placeholder: "Select Track", required: false },
+      { id: "c4", label: "Detailed Message", type: "textarea", placeholder: "How can we help you?", required: true }
     ]
   },
+  about: {
+    beginning: {
+      label: "Chapter 01 — Our Genesis",
+      title: "Our Foundations",
+      story: "Founded in 2024, S M Skills was born out of a critical observation: the widening gap between traditional academic knowledge and the rapidly evolving demands of the modern workforce. We set out to build an institution that treats education not as a checkbox, but as a direct gateway to professional mastery.",
+      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1200"
+    },
+    learning: {
+      label: "Chapter 02 — Methodology",
+      title: "Learning by Doing",
+      description: "We abandon the 'lecture-only' model. Here, learning happens through rigorous project-based simulations, high-discipline workshops, and constant mentorship. Our students don't just study architecture; they build it.",
+      image1: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800",
+      image2: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800",
+      caption1: "Collaborative project review sessions.",
+      caption2: "Practical labs led by industry veterans."
+    },
+    faculty: {
+      label: "Chapter 03 — The Guardians",
+      title: "Taught by Practitioners",
+      description: "Our mentors aren't just academics; they are industry veterans who have led teams at global tech firms. They bring real-world constraints and standards into every classroom interaction.",
+      members: [
+        { id: "m1", name: "Dr. Elena Vance", role: "Founding Director", bio: "Former Engineering Head with 20 years of experience in distributed systems.", image: "https://i.pravatar.cc/150?u=elena" }
+      ]
+    },
+    vision: {
+      label: "Chapter 04 — Core DNA",
+      title: "Vision & Values",
+      content: "We envision a world where every learner is equipped with the precision and responsibility required to lead industries. Our values center on consistency, relentless skill development, and institutional integrity.",
+      values: ["Relentless Practicality", "Absolute Transparency", "Industry Alignment", "Student Ownership"],
+      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200"
+    },
+    achievements: {
+      label: "Chapter 05 — Proof of Excellence",
+      title: "Milestones Achieved",
+      ctaLabel: "Join the Next Batch",
+      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1200",
+      stats: [
+        { label: "Years of Heritage", value: "ESTD 2024" },
+        { label: "Success Rate", value: "94%" },
+        { label: "Global Partners", value: "200+" }
+      ]
+    }
+  },
+  courses: {
+    list: [
+      {
+        id: "1",
+        name: "Software Architecture",
+        duration: "12 Months",
+        mode: "Offline",
+        description: "Comprehensive training on distributed systems and cloud-native engineering.",
+        status: "Active",
+        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
+        price: "$2,200"
+      }
+    ],
+    pageMeta: { title: "Technical Programs", subtitle: "Browse through our industry-verified technical tracks optimized for global employability.", tagline: "Professional Curricula" }
+  },
+  notices: {
+    list: [
+      {
+        id: "n1",
+        date: "2024-06-01",
+        title: "Summer 2024 Intake Open",
+        description: "Secure your place in our flagship engineering and design programs.",
+        isImportant: true,
+        category: 'New'
+      }
+    ],
+    pageMeta: { title: "Campus Announcements", subtitle: "Stay informed about batch timings, events, and scholarships.", tagline: "Official Feed" }
+  },
+  gallery: {
+    list: [],
+    pageMeta: { title: "Our Campus Life", subtitle: "Explore our facilities, classroom interactions, and achievement galleries.", tagline: "Visual Archives" }
+  },
+  faqs: {
+    list: [
+      { id: "q1", question: "What is the admission criteria?", answer: "We look for a basic technical aptitude and a passion for learning. Previous experience is not mandatory for foundation tracks.", category: "Admissions" },
+      { id: "q2", question: "Do you provide job assistance?", answer: "Yes, our Placement Cell works with 200+ global partners to ensure high-quality career launches for our graduates.", category: "Placements" }
+    ],
+    pageMeta: { title: "Help Center", subtitle: "Find answers to common questions about enrollment, curriculum, and placement services.", tagline: "Institutional Assistance" }
+  },
   placements: {
-    pageDescription: "SM Skills graduates are consistently hired by the world's most innovative companies.",
+    pageMeta: { title: "Placements Reviews", subtitle: "Celebrating S M Skills graduates who have joined industry-leading organizations.", tagline: "Proven Outcomes" },
+    pageDescription: "S M Skills graduates are consistently hired by the world's most innovative companies.",
+    wallTitle: "Wall of Success",
     stats: [
       { id: "s1", label: "Average Hike", value: "85%", icon: "fa-chart-line" },
       { id: "s2", label: "Hiring Partners", value: "200+", icon: "fa-handshake" }
@@ -179,7 +247,7 @@ export const INITIAL_CONTENT: AppState = {
         company: "Google",
         companyIcon: "fa-google",
         image: "https://i.pravatar.cc/150?u=jess",
-        text: "The training at SM Skills was more rigorous than my actual job.",
+        text: "The training at S M Skills was more rigorous than my actual job.",
         salaryIncrease: "+120% Hike"
       }
     ],
@@ -192,7 +260,7 @@ export const INITIAL_CONTENT: AppState = {
   legal: {
     privacy: {
       title: "Data Privacy",
-      subtitle: "How SM Skills manages your records.",
+      subtitle: "How S M Skills manages your records.",
       sections: [
         { id: "p1", title: "Information Handling", content: "Student records are encrypted." }
       ]
@@ -206,6 +274,7 @@ export const INITIAL_CONTENT: AppState = {
     }
   },
   career: {
+    pageMeta: { title: "Career Lab", subtitle: "Interview prep with industry vets.", tagline: "Success Roadmap" },
     hero: {
       title: "Career Lab",
       subtitle: "Interview prep with industry vets.",
