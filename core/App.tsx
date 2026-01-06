@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
@@ -73,6 +72,7 @@ const App: React.FC = () => {
           pageMeta: deepMerge(INITIAL_CONTENT.gallery.pageMeta, parsed.gallery?.pageMeta)
         },
         faqs: {
+          // Fixed: Changed parsed.notices to parsed.faqs for correct data recovery
           list: parsed.faqs?.list || (Array.isArray(parsed.faqs) ? parsed.faqs : INITIAL_CONTENT.faqs.list),
           pageMeta: deepMerge(INITIAL_CONTENT.faqs.pageMeta, parsed.faqs?.pageMeta)
         },

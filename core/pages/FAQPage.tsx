@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AppState, SiteConfig } from '../types.ts';
+import { AppState, SiteConfig, FAQItem } from '../types.ts';
 import PageStateGuard from '../components/PageStateGuard.tsx';
 
 interface FAQPageProps {
@@ -13,9 +12,15 @@ const FAQPage: React.FC<FAQPageProps> = ({ faqsState, contact }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
-  // Defensive fallback for the state
-  const currentFaqs = faqsState?.list || [];
-  const meta = faqsState?.pageMeta || { title: 'Help Center', tagline: 'Support', subtitle: 'Frequently Asked Questions' };
+  // Normalize data: Microsoft Edge might be strict with the incoming prop if it was parsed from corrupted storage.
+  // We check if faqsState is an array (legacy) or an object (new structure).
+  const currentList: FAQItem[] = Array.isArray(faqsState) 
+    ? faqsState 
+    : (faqsState?.list || []);
+    
+  const meta = (!Array.isArray(faqsState) && faqsState?.pageMeta) 
+    ? faqsState.pageMeta 
+    : { title: 'Help Center', tagline: 'Support', subtitle: 'Frequently Asked Questions' };
 
   const toggleItem = (id: string) => {
     const next = new Set(openItems);
@@ -25,7 +30,7 @@ const FAQPage: React.FC<FAQPageProps> = ({ faqsState, contact }) => {
   };
 
   // Ultra-defensive filtering for Edge/stale data compatibility
-  const filteredFaqs = (currentFaqs || []).filter(faq => {
+  const filteredFaqs = (currentList || []).filter(faq => {
     if (!faq) return false;
     const q = (faq.question || '').toLowerCase();
     const a = (faq.answer || '').toLowerCase();
@@ -34,7 +39,7 @@ const FAQPage: React.FC<FAQPageProps> = ({ faqsState, contact }) => {
     return q.includes(s) || a.includes(s) || c.includes(s);
   });
 
-  const categories = Array.from(new Set((currentFaqs || []).map(f => f?.category || 'General')));
+  const categories = Array.from(new Set((currentList || []).map(f => f?.category || 'General')));
   const sanitizedPhone = (contact?.phone || '').replace(/[^\d+]/g, '');
 
   const emptyFallback = (

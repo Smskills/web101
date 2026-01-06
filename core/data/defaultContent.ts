@@ -151,7 +151,7 @@ export const INITIAL_CONTENT: AppState = {
     beginning: {
       label: "Chapter 01 — Our Genesis",
       title: "Our Foundations",
-      story: "Founded in 2024, S M Skills was born out of a critical observation: the widening gap between traditional academic knowledge and the rapidly evolving demands of the modern workforce. We set out to build an institution that treats education not as a checkbox, but as a direct gateway to professional mastery.",
+      story: "Founded in 2024, S M Skills was born out of a critical observation: the widening gap between traditional academic knowledge and the rapidly evolving demands of the modern workforce. We set out to build an institution that treats education not as a gateway to professional mastery.",
       image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1200"
     },
     learning: {
@@ -189,7 +189,8 @@ export const INITIAL_CONTENT: AppState = {
         { id: "a2", label: "Success Rate", value: "94%" },
         { id: "a3", label: "Global Partners", value: "200+" }
       ]
-    }
+    },
+    extraChapters: []
   },
   courses: {
     list: [
