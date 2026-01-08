@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   /**
@@ -15,8 +15,8 @@ interface State {
  * Global Error Boundary component to protect the application from 
  * total crashes during runtime rendering exceptions.
  */
-// Fix: Import Component directly and extend it to ensure correct property inheritance for this.props and this.state
-export default class ErrorBoundary extends Component<Props, State> {
+// Fix: Extend React.Component explicitly to ensure correct property inheritance for this.props and this.state
+export default class ErrorBoundary extends React.Component<Props, State> {
   /**
    * Initialize error tracking state.
    */
@@ -65,8 +65,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fix: Returning children from this.props which is now correctly recognized by the TypeScript compiler
-    // through explicit React.Component inheritance via direct import.
+    // Fix: Access children from this.props which is now correctly recognized via explicit inheritance from React.Component
     return this.props.children || null;
   }
 }
