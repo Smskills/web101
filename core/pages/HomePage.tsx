@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppState, Notice } from '../types';
@@ -10,6 +9,18 @@ interface HomePageProps {
 const HomePage: React.FC<HomePageProps> = ({ content }) => {
   const { home, courses, notices, placements } = content;
   const placementLabel = home.sectionLabels.placementMainLabel || "Placement";
+
+  // Robust path normalizer to prevent relative path drift in local dev environments
+  const getCleanPath = (path: string) => {
+    if (!path) return '/';
+    let cleaned = path;
+    // Remove hash if accidentally included in data string
+    if (cleaned.startsWith('#/')) cleaned = cleaned.substring(1);
+    else if (cleaned.startsWith('#')) cleaned = cleaned.substring(1);
+    // Force absolute path
+    if (!cleaned.startsWith('/')) cleaned = '/' + cleaned;
+    return cleaned;
+  };
 
   const getNoticeTheme = (category?: string) => {
     switch(category) {
@@ -281,7 +292,10 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
             <p className="text-emerald-50 max-w-3xl mx-auto mb-16 text-lg md:text-2xl font-medium leading-relaxed opacity-90">
               {home.ctaBlock.subtitle}
             </p>
-            <Link to={home.ctaBlock.buttonLink} className="inline-flex items-center gap-6 px-10 md:px-16 py-6 md:py-8 bg-slate-900 text-white font-black rounded-2xl md:rounded-[2rem] hover:bg-white hover:text-emerald-600 focus-visible:ring-4 focus-visible:ring-slate-900/30 transition-all shadow-3xl text-[11px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.3em] active:scale-95 min-h-[56px]">
+            <Link 
+              to={getCleanPath(home.ctaBlock.buttonLink)} 
+              className="inline-flex items-center gap-6 px-10 md:px-16 py-6 md:py-8 bg-slate-900 text-white font-black rounded-2xl md:rounded-[2rem] hover:bg-white hover:text-emerald-600 focus-visible:ring-4 focus-visible:ring-slate-900/30 transition-all shadow-3xl text-[11px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.3em] active:scale-95 min-h-[56px]"
+            >
               {home.ctaBlock.buttonText} <i className="fa-solid fa-arrow-right-long text-xl" aria-hidden="true"></i>
             </Link>
           </div>

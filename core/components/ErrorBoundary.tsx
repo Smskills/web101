@@ -15,7 +15,8 @@ interface State {
  * Global Error Boundary component to protect the application from 
  * total crashes during runtime rendering exceptions.
  */
-export default class ErrorBoundary extends React.Component<Props, State> {
+// Use the directly imported Component class to ensure proper TypeScript generic inheritance and access to this.props
+export default class ErrorBoundary extends Component<Props, State> {
   public state: State = { hasError: false };
 
   /**
@@ -62,7 +63,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     }
 
     /**
-     * Fixed: Successfully inheriting from React.Component allows standard access to this.props.
+     * Fixed: Successfully inheriting from Component allows standard access to this.props.
      */
     return this.props.children || null;
   }
