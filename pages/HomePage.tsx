@@ -30,8 +30,9 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
     return cleaned;
   };
 
-  const spotlightNotice = notices[0];
-  const tickerNotices = notices.length > 1 ? notices.slice(1) : notices;
+  // Fixed access to notices list
+  const spotlightNotice = notices.list[0];
+  const tickerNotices = notices.list.length > 1 ? notices.list.slice(1) : notices.list;
 
   // Unified Institutional Button Styles
   const btnPrimary = "px-10 py-5 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-500/30 transition-all shadow-2xl shadow-emerald-600/20 active:scale-95 text-[11px] uppercase tracking-widest text-center min-h-[56px] flex items-center justify-center";
@@ -151,7 +152,8 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
       )}
 
       {/* Moving Notices Board */}
-      {home.sections.notices && notices.length > 0 && (
+      {/* Fixed access to notices.list */}
+      {home.sections.notices && notices.list.length > 0 && (
         <section className="py-24 bg-slate-900 overflow-hidden relative">
           <div className="container mx-auto px-4 relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
@@ -227,6 +229,7 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
       )}
 
       {/* Featured Courses */}
+      {/* Fixed access to courses.list */}
       {home.sections.featuredCourses && (
         <section className="py-24 bg-white border-t border-slate-100">
           <div className="container mx-auto px-4">
@@ -236,7 +239,7 @@ const HomePage: React.FC<HomePageProps> = ({ content }) => {
               <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed">{home.sectionLabels.coursesSubtitle}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-              {courses.filter(c => c.status === 'Active').slice(0, 3).map(course => (
+              {courses.list.filter(c => c.status === 'Active').slice(0, 3).map(course => (
                 <article key={course.id} className="flex flex-col rounded-[2.5rem] overflow-hidden border border-slate-100 bg-white hover:shadow-3xl transition-all group">
                   <div className="relative h-64 md:h-72 overflow-hidden">
                     <img src={course.image} alt={course.name} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />

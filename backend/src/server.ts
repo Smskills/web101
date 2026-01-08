@@ -1,36 +1,36 @@
 import app from './app';
 import pool from './config/db';
 import dotenv from 'dotenv';
-// Fix: Explicitly import 'process' to ensure proper type definitions for .exit() and .on() in TypeScript
 import process from 'process';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-async function bootstrap() {
+async function startServer() {
   try {
-    // Test Database Connection
+    // Verify Database Connection Pool
     const connection = await pool.getConnection();
-    console.log('✅ Database connected successfully.');
+    console.log('📦 MySQL Database connection pool initialized.');
     connection.release();
 
+    // Start HTTP Listener
     app.listen(PORT, () => {
-      console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+      console.log(`🚀 API Server running in [${process.env.NODE_ENV}] mode`);
+      console.log(`📡 Endpoint: http://localhost:${PORT}/api`);
     });
+
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    // Fix: Using correctly typed process.exit
+    console.error('💥 Failed to start server:', error);
     process.exit(1);
   }
 }
 
-// Handle unhandled rejections
-// Fix: Using correctly typed process.on for event listening
+// Handle unexpected process crashes
 process.on('unhandledRejection', (err: Error) => {
-  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
-  console.log(err.name, err.message);
+  console.error('UNHANDLED REJECTION! 💥 Shutting down server...');
+  console.error(err.name, err.message);
   process.exit(1);
 });
 
-bootstrap();
+startServer();

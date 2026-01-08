@@ -3,32 +3,35 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
+import process from 'process';
 import apiRoutes from './routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const app: Application = express();
 
-// Security Middlewares
+// 1. Security Middlewares
 app.use(helmet({
-  crossOriginResourcePolicy: false, // Required for serving local uploads
+  crossOriginResourcePolicy: false, // Allows frontend to access images in /uploads
 }));
 app.use(cors());
 
-// Logging
-app.use(morgan('dev'));
+// 2. Logging (Only in dev)
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-// Parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// 3. Request Parsing
+app.use(express.json({ limit: process.env.UPLOAD_LIMIT || '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.UPLOAD_LIMIT || '10mb' }));
 
-// Static Files (Uploads)
-// Fix: Replaced environment-dependent '__dirname' with robust 'process.cwd()' path resolution for ESM compatibility
+// 4. Static File Hosting (Uploads)
+// Path relative to the root of the backend folder
 app.use('/uploads', express.static(path.join(process.cwd(), 'src', 'uploads')));
 
-// API Routes
+// 5. API Route Registration
 app.use('/api', apiRoutes);
 
-// Error Handling
+// 6. Global Error Handler (Must be last)
 app.use(errorHandler);
 
 export default app;

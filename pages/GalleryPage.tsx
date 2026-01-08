@@ -12,17 +12,17 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [fullscreenItem, setFullscreenItem] = useState<GalleryItem | null>(null);
 
-  // Grouping categories and counts
-  // Explicitly type categories as string[] to fix 'unknown' inference issues
-  const categories: string[] = Array.from(new Set(gallery.map(item => item.category)));
+  // Fixed access to gallery.list
+  const categories: string[] = Array.from(new Set(gallery.list.map(item => item.category)));
   
   const handleAlbumClick = (category: string) => {
     setSelectedCategory(category);
     setView('photos');
   };
 
+  // Fixed access to gallery.list
   const filteredPhotos = selectedCategory 
-    ? gallery.filter(item => item.category === selectedCategory)
+    ? gallery.list.filter(item => item.category === selectedCategory)
     : [];
 
   return (
@@ -88,10 +88,10 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ content }) => {
         {/* ALBUM GRID VIEW */}
         {view === 'albums' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {/* Added explicit type for 'cat' parameter to fix TypeScript unknown index error */}
             {categories.map((cat: string) => {
               const thumbnail = galleryMetadata?.[cat];
-              const count = gallery.filter(i => i.category === cat).length;
+              // Fixed access to gallery.list
+              const count = gallery.list.filter(i => i.category === cat).length;
               
               return (
                 <div 

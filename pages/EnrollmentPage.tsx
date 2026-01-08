@@ -23,7 +23,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
       successTitle: 'Thank You', 
       successMessage: 'We received your application.' 
     }, 
-    courses = [], 
+    courses = { list: [], pageMeta: { title: '', subtitle: '' } }, 
     site = { contact: { phone: 'N/A', email: '', address: '' } } 
   } = content || {};
 
@@ -158,7 +158,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                             className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer"
                           >
                             <option value="">{field.placeholder || 'Select Track'}</option>
-                            {(courses || []).filter(c => c?.status === 'Active').map(course => (
+                            {(courses.list || []).filter(c => c?.status === 'Active').map(course => (
                               <option key={course.id} value={course.name}>
                                 {course.name} {course.price ? ` — ${course.price}` : ''}
                               </option>

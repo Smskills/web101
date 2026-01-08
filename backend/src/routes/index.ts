@@ -1,15 +1,23 @@
+
 import { Router } from 'express';
+import process from 'process';
 
 const router = Router();
 
-// Health Check
-// Fix: Corrected parameter name from 'resentment' to 'res' to match its usage in the function body
-router.get('/health', (req, res, next) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+/**
+ * Health Check Endpoint
+ * Verifies API availability
+ */
+router.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
-// Placeholder for feature routes (to be implemented in next steps)
-// router.use('/site', siteRoutes);
+// Future modular routes will be registered here:
 // router.use('/courses', courseRoutes);
+// router.use('/admin', adminRoutes);
 
 export default router;

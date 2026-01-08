@@ -99,11 +99,15 @@ const App: React.FC = () => {
         <main id="main-content" className="flex-grow pt-32 focus:outline-none" tabIndex={-1}>
           <Routes>
             <Route path="/" element={<HomePage content={content} />} />
+            {/* Pass content.about as AboutState */}
             <Route path="/about" element={<AboutPage content={content.about} siteName={content.site.name} />} />
-            <Route path="/courses" element={<CoursesPage courses={content.courses} isLoading={isInitializing} />} />
-            <Route path="/notices" element={<NoticesPage notices={content.notices} />} />
+            {/* Pass courses as list object */}
+            <Route path="/courses" element={<CoursesPage courses={content.courses.list} isLoading={isInitializing} />} />
+            {/* Pass notices as list object */}
+            <Route path="/notices" element={<NoticesPage notices={content.notices.list} />} />
             <Route path="/gallery" element={<GalleryPage content={content} />} />
-            <Route path="/faq" element={<FAQPage faqs={content.faqs} contact={content.site.contact} />} />
+            {/* Pass faqs as list object */}
+            <Route path="/faq" element={<FAQPage faqs={content.faqs.list} contact={content.site.contact} />} />
             <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} />} />
             <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
             <Route path="/enroll" element={<EnrollmentPage content={content} />} />
