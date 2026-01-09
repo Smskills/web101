@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
 import { AppState } from './types.ts';
 
@@ -27,15 +28,73 @@ import LoginPage from './pages/LoginPage.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
-  const [isAuth, setIsAuth] = useState(() => !!localStorage.getItem('sms_auth_token'));
-  
   const [content, setContent] = useState<AppState>(() => {
     const saved = localStorage.getItem('edu_insta_content');
     if (!saved) return INITIAL_CONTENT;
+    
     try {
       const parsed = JSON.parse(saved);
-      return { ...INITIAL_CONTENT, ...parsed }; // Simplified for persistence fix clarity
+      
+      if (!parsed || typeof parsed !== 'object' || !parsed.site || !parsed.home) {
+        throw new Error("Invalid state structure detected.");
+      }
+
+      const deepMerge = (target: any, source: any) => {
+        if (!source || typeof source !== 'object') return target;
+        const result = { ...target };
+        for (const key in source) {
+          if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+             result[key] = deepMerge(target[key] || {}, source[key]);
+          } else {
+             result[key] = source[key];
+          }
+        }
+        return result;
+      };
+
+      const migrateList = (key: string, defaultMeta: any): any => {
+        const val = parsed[key];
+        if (Array.isArray(val)) {
+          return { list: val, pageMeta: defaultMeta };
+        }
+        if (val && typeof val === 'object' && val.list) {
+          return {
+            list: val.list,
+            pageMeta: deepMerge(defaultMeta, val.pageMeta)
+          };
+        }
+        return (INITIAL_CONTENT as any)[key] || { list: [], pageMeta: defaultMeta };
+      };
+
+      const baseSite = deepMerge(INITIAL_CONTENT.site, parsed.site);
+      const hasFaq = baseSite.navigation.some((n: any) => n.path === '/faq');
+      if (!hasFaq) {
+        baseSite.navigation.push({ label: "FAQ", path: "/faq" });
+      }
+
+      const mergedState: AppState = {
+        ...INITIAL_CONTENT,
+        site: baseSite,
+        theme: deepMerge(INITIAL_CONTENT.theme, parsed.theme),
+        home: deepMerge(INITIAL_CONTENT.home, parsed.home),
+        about: deepMerge(INITIAL_CONTENT.about, parsed.about),
+        enrollmentForm: deepMerge(INITIAL_CONTENT.enrollmentForm, parsed.enrollmentForm),
+        contactForm: deepMerge(INITIAL_CONTENT.contactForm, parsed.contactForm),
+        placements: deepMerge(INITIAL_CONTENT.placements, parsed.placements),
+        legal: deepMerge(INITIAL_CONTENT.legal, parsed.legal),
+        career: deepMerge(INITIAL_CONTENT.career, parsed.career),
+        courses: migrateList('courses', INITIAL_CONTENT.courses.pageMeta),
+        notices: migrateList('notices', INITIAL_CONTENT.notices.pageMeta),
+        gallery: migrateList('gallery', INITIAL_CONTENT.gallery.pageMeta),
+        faqs: migrateList('faqs', INITIAL_CONTENT.faqs.pageMeta),
+        customPages: parsed.customPages || INITIAL_CONTENT.customPages,
+        galleryMetadata: parsed.galleryMetadata || INITIAL_CONTENT.galleryMetadata
+      };
+
+      return mergedState;
     } catch (e) {
+      console.error("Educational CMS: Error restoring state. Reverting to defaults.", e);
+      localStorage.removeItem('edu_insta_content');
       return INITIAL_CONTENT;
     }
   });
@@ -43,22 +102,38 @@ const App: React.FC = () => {
   const brandingStyles = useMemo(() => {
     const { primary, secondary, accent, radius } = content.theme;
     const borderRadius = radius === 'none' ? '0' : radius === 'small' ? '0.5rem' : radius === 'medium' ? '1rem' : radius === 'large' ? '2.5rem' : '9999px';
-    return `:root { --brand-primary: ${primary}; --brand-secondary: ${secondary}; --brand-accent: ${accent}; --brand-radius: ${borderRadius}; }`;
+    
+    return `
+      :root {
+        --brand-primary: ${primary};
+        --brand-secondary: ${secondary};
+        --brand-accent: ${accent};
+        --brand-radius: ${borderRadius};
+      }
+      .bg-emerald-600 { background-color: var(--brand-primary) !important; }
+      .text-emerald-600 { color: var(--brand-primary) !important; }
+      .border-emerald-600 { border-color: var(--brand-primary) !important; }
+      .bg-slate-900 { background-color: var(--brand-secondary) !important; }
+      .bg-emerald-500 { background-color: var(--brand-accent) !important; }
+      .text-emerald-500 { color: var(--brand-accent) !important; }
+      .rounded-\\[2\\.5rem\\], .rounded-\\[3\\.5rem\\], .rounded-\\[3rem\\], .rounded-3xl, .rounded-2xl {
+         border-radius: var(--brand-radius) !important;
+      }
+    `;
   }, [content.theme]);
 
   useEffect(() => {
-    const checkAuth = () => setIsAuth(!!localStorage.getItem('sms_auth_token'));
-    window.addEventListener('authChange', checkAuth);
     const timer = setTimeout(() => setIsInitializing(false), 800);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('authChange', checkAuth);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   const updateContent = (newContent: AppState) => {
     setContent(newContent);
-    localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
+    try {
+      localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
+    } catch (err) {
+      console.error("Educational CMS: Failed to save", err);
+    }
   };
 
   return (
@@ -77,10 +152,7 @@ const App: React.FC = () => {
               <Route path="/gallery" element={<GalleryPage content={content} />} />
               <Route path="/faq" element={<FAQPage faqsState={content.faqs} contact={content.site.contact} />} />
               <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} content={content} />} />
-              <Route 
-                path="/admin" 
-                element={isAuth ? <AdminDashboard content={content} onUpdate={updateContent} /> : <Navigate to="/login" replace />} 
-              />
+              <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
               <Route path="/enroll" element={<EnrollmentPage content={content} />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage siteName={content.site.name} data={content.legal.privacy} />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
