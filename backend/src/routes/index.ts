@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import courseRoutes from './courses.routes';
+import authRoutes from './auth.routes';
 
 const router = Router();
 
@@ -17,11 +18,7 @@ router.get('/health', (req, res) => {
 /**
  * Feature Module Registration
  */
+router.use('/auth', authRoutes);
 router.use('/courses', courseRoutes);
-
-// Stubs for forthcoming modules:
-// router.use('/admin', adminRoutes);
-// router.use('/forms', formsRoutes);
-// router.use('/site', siteRoutes);
 
 export default router;

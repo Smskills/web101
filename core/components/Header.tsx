@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { SiteConfig } from '../types';
@@ -81,9 +82,9 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
             );
           })}
           <Link
-            to="/admin"
+            to="/login"
             className={`${btnNavAction} ${
-              location.pathname === '/admin' 
+              location.pathname === '/login' 
                 ? 'bg-emerald-600 text-white shadow-emerald-600/20' 
                 : 'bg-slate-900 text-white hover:bg-emerald-600 shadow-slate-900/10'
             }`}
@@ -143,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
               );
             })}
             <Link
-              to="/admin"
+              to="/login"
               className="bg-slate-900 text-white font-black py-6 rounded-3xl text-center shadow-2xl mt-4 uppercase tracking-[0.3em] text-[11px] active:scale-95 transition-all"
               onClick={() => setIsMenuOpen(false)}
             >

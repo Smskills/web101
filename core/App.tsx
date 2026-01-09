@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
@@ -23,6 +24,7 @@ import PlacementReviewPage from './pages/PlacementReviewPage.tsx';
 import FAQPage from './pages/FAQPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import CustomPageView from './pages/CustomPageView.tsx';
+import LoginPage from './pages/LoginPage.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -33,7 +35,6 @@ const App: React.FC = () => {
     try {
       const parsed = JSON.parse(saved);
       
-      // Basic Structural Validation to prevent "Cannot read property of undefined" crashes
       if (!parsed || typeof parsed !== 'object' || !parsed.site || !parsed.home) {
         throw new Error("Invalid state structure detected.");
       }
@@ -93,7 +94,6 @@ const App: React.FC = () => {
       return mergedState;
     } catch (e) {
       console.error("Educational CMS: Error restoring state. Reverting to defaults.", e);
-      // If corruption is deep, clear corrupted storage to allow recovery
       localStorage.removeItem('edu_insta_content');
       return INITIAL_CONTENT;
     }
@@ -158,6 +158,7 @@ const App: React.FC = () => {
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
+              <Route path="/login" element={<LoginPage siteConfig={content.site} />} />
               {content.customPages.filter(p => p.visible).map(page => (
                 <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}
