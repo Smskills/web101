@@ -6,12 +6,12 @@ import { UsersRepository } from '../repositories/users.repo';
 import { ENV } from '../config/env';
 
 export class AuthService {
-  static async login(identifier: string, plainPassword: string) {
-    // 1. Locate user record
-    const user = await UsersRepository.findByIdentifier(identifier);
+  static async login(email: string, plainPassword: string) {
+    // 1. Locate user record by email
+    const user = await UsersRepository.findByEmail(email);
     if (!user) {
-      const err: any = new Error('Invalid credentials');
-      err.statusCode = 401;
+      const err: any = new Error('User not found');
+      err.statusCode = 404;
       throw err;
     }
 
@@ -23,9 +23,10 @@ export class AuthService {
     }
 
     // 3. Cryptographic Verification
+    // Ensure parameters are (plainText, hash)
     const isMatch = await bcrypt.compare(plainPassword, user.password);
     if (!isMatch) {
-      const err: any = new Error('Invalid credentials');
+      const err: any = new Error('Incorrect password');
       err.statusCode = 401;
       throw err;
     }

@@ -5,16 +5,17 @@ import { sendResponse } from '../utils/response';
 export class AuthController {
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { identifier, password } = req.body;
+      const { email, password } = req.body;
 
-      if (!identifier || !password) {
-        return sendResponse(res, 400, false, 'Identifier and password are required');
+      if (!email || !password) {
+        return sendResponse(res, 400, false, 'Email and password are required');
       }
 
-      const authData = await AuthService.login(identifier, password);
+      const authData = await AuthService.login(email, password);
       
       return sendResponse(res, 200, true, 'Login successful', authData);
     } catch (error) {
+      // Passes errors (like 404 User not found or 401 Incorrect password) to the error middleware
       next(error);
     }
   }
