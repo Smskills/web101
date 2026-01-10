@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
 import { AppState } from './types.ts';
 
@@ -28,9 +28,6 @@ import LoginPage from './pages/LoginPage.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
-  // PERSISTENCE FIX: Initialize auth state from localStorage
-  const [isAuth, setIsAuth] = useState(() => !!localStorage.getItem('sms_auth_token'));
-  
   const [content, setContent] = useState<AppState>(() => {
     const saved = localStorage.getItem('edu_insta_content');
     if (!saved) return INITIAL_CONTENT;
@@ -126,15 +123,8 @@ const App: React.FC = () => {
   }, [content.theme]);
 
   useEffect(() => {
-    // Sync auth state across components and refreshes
-    const checkAuth = () => setIsAuth(!!localStorage.getItem('sms_auth_token'));
-    window.addEventListener('authChange', checkAuth);
-    
     const timer = setTimeout(() => setIsInitializing(false), 800);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('authChange', checkAuth);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   const updateContent = (newContent: AppState) => {
@@ -162,10 +152,7 @@ const App: React.FC = () => {
               <Route path="/gallery" element={<GalleryPage content={content} />} />
               <Route path="/faq" element={<FAQPage faqsState={content.faqs} contact={content.site.contact} />} />
               <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} content={content} />} />
-              <Route 
-                path="/admin" 
-                element={isAuth ? <AdminDashboard content={content} onUpdate={updateContent} /> : <Navigate to="/login" replace />} 
-              />
+              <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
               <Route path="/enroll" element={<EnrollmentPage content={content} />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage siteName={content.site.name} data={content.legal.privacy} />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
