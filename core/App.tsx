@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
 import { AppState } from './types.ts';
 
@@ -28,6 +28,10 @@ import LoginPage from './pages/LoginPage.tsx';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token');
+  });
+
   const [content, setContent] = useState<AppState>(() => {
     const saved = localStorage.getItem('edu_insta_content');
     if (!saved) return INITIAL_CONTENT;
@@ -99,6 +103,20 @@ const App: React.FC = () => {
     }
   });
 
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsAuthenticated(localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token'));
+    };
+
+    window.addEventListener('authChange', handleAuthChange);
+    const timer = setTimeout(() => setIsInitializing(false), 800);
+    
+    return () => {
+      window.removeEventListener('authChange', handleAuthChange);
+      clearTimeout(timer);
+    };
+  }, []);
+
   const brandingStyles = useMemo(() => {
     const { primary, secondary, accent, radius } = content.theme;
     const borderRadius = radius === 'none' ? '0' : radius === 'small' ? '0.5rem' : radius === 'medium' ? '1rem' : radius === 'large' ? '2.5rem' : '9999px';
@@ -122,11 +140,6 @@ const App: React.FC = () => {
     `;
   }, [content.theme]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsInitializing(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const updateContent = (newContent: AppState) => {
     setContent(newContent);
     try {
@@ -136,12 +149,20 @@ const App: React.FC = () => {
     }
   };
 
+  // Protected Route Component
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />;
+    }
+    return <>{children}</>;
+  };
+
   return (
     <HashRouter>
       <style>{brandingStyles}</style>
       <ScrollToTop />
       <div className="flex flex-col min-h-screen overflow-x-hidden">
-        <Header config={content.site} />
+        <Header config={content.site} isAuthenticated={isAuthenticated} />
         <main id="main-content" className="flex-grow pt-32 focus:outline-none" tabIndex={-1}>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-600"></i></div>}>
             <Routes>
@@ -152,13 +173,20 @@ const App: React.FC = () => {
               <Route path="/gallery" element={<GalleryPage content={content} />} />
               <Route path="/faq" element={<FAQPage faqsState={content.faqs} contact={content.site.contact} />} />
               <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} content={content} />} />
-              <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
+              
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminDashboard content={content} onUpdate={updateContent} />
+                </ProtectedRoute>
+              } />
+
               <Route path="/enroll" element={<EnrollmentPage content={content} />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage siteName={content.site.name} data={content.legal.privacy} />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
-              <Route path="/login" element={<LoginPage siteConfig={content.site} />} />
+              <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <LoginPage siteConfig={content.site} />} />
+              
               {content.customPages.filter(p => p.visible).map(page => (
                 <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}

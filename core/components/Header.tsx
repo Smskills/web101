@@ -5,9 +5,10 @@ import { SiteConfig } from '../types';
 
 interface HeaderProps {
   config: SiteConfig;
+  isAuthenticated?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ config }) => {
+const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const logoUrl = config.logo || "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png";
@@ -81,16 +82,17 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
               </a>
             );
           })}
+          
           <Link
-            to="/login"
+            to={isAuthenticated ? "/admin" : "/login"}
             className={`${btnNavAction} ${
-              location.pathname === '/login' 
+              location.pathname === '/login' || location.pathname === '/admin'
                 ? 'bg-emerald-600 text-white shadow-emerald-600/20' 
                 : 'bg-slate-900 text-white hover:bg-emerald-600 shadow-slate-900/10'
             }`}
           >
-            <i className="fa-solid fa-user-gear mr-2" aria-hidden="true"></i>
-            {config.loginLabel || "Login"}
+            <i className={`fa-solid ${isAuthenticated ? 'fa-gauge-high' : 'fa-user-gear'} mr-2`} aria-hidden="true"></i>
+            {isAuthenticated ? "Dashboard" : (config.loginLabel || "Login")}
           </Link>
         </nav>
 
@@ -144,11 +146,12 @@ const Header: React.FC<HeaderProps> = ({ config }) => {
               );
             })}
             <Link
-              to="/login"
+              to={isAuthenticated ? "/admin" : "/login"}
               className="bg-slate-900 text-white font-black py-6 rounded-3xl text-center shadow-2xl mt-4 uppercase tracking-[0.3em] text-[11px] active:scale-95 transition-all"
               onClick={() => setIsMenuOpen(false)}
             >
-              <i className="fa-solid fa-lock mr-2" aria-hidden="true"></i> Institutional Login
+              <i className={`fa-solid ${isAuthenticated ? 'fa-gauge-high' : 'fa-lock'} mr-2`} aria-hidden="true"></i>
+              {isAuthenticated ? "Go to Dashboard" : "Institutional Login"}
             </Link>
           </div>
         </div>
