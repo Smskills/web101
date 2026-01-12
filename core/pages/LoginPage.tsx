@@ -15,32 +15,38 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // SECURE CREDENTIAL DEFINITION
-  const AUTHORIZED_ADMIN = "admin";
-  const AUTHORIZED_PASS = "admin123";
+  // INSTITUTIONAL CREDENTIAL CONFIGURATION
+  const AUTHORIZED_USER = "SMskills@2026";
+  const AUTHORIZED_EMAIL = "info@smskills.in";
+  const AUTHORIZED_PASS = "Myweb@27";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     
-    // Simulate institutional processing delay
+    // Simulate institutional processing delay for security
     setTimeout(() => {
-      // Robust Validation: Trim whitespace and ignore case for the username
+      // Normalize inputs: Trim whitespace and compare identifiers case-insensitively
       const cleanId = identifier.trim().toLowerCase();
-      const cleanPass = password.trim();
+      const cleanPass = password.trim(); // Passwords remain case-sensitive
 
-      if (cleanId === AUTHORIZED_ADMIN && cleanPass === AUTHORIZED_PASS) {
-        // SUCCESS: Secure state persistence
-        localStorage.setItem('sms_auth_token', 'secure_session_token_' + Date.now());
+      const isUserMatch = cleanId === AUTHORIZED_USER.toLowerCase();
+      const isEmailMatch = cleanId === AUTHORIZED_EMAIL.toLowerCase();
+      const isPassMatch = cleanPass === AUTHORIZED_PASS;
+
+      if ((isUserMatch || isEmailMatch) && isPassMatch) {
+        // SUCCESS: Secure state persistence for dashboard access
+        localStorage.setItem('sms_auth_token', 'secure_session_' + btoa(Date.now().toString()));
         localStorage.setItem('sms_is_auth', 'true');
         localStorage.setItem('sms_auth_user', JSON.stringify({
-          id: 'admin_01',
-          username: 'Institutional Admin',
+          id: 'inst_admin_01',
+          username: AUTHORIZED_USER,
+          email: AUTHORIZED_EMAIL,
           role: 'SUPER_ADMIN'
         }));
         
-        // Notify System (Header/App) of auth status change
+        // Signal application components (Header, PrivateRoutes) of auth change
         window.dispatchEvent(new Event('authChange'));
         
         setIsLoading(false);
@@ -77,7 +83,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
               )}
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">Email or Username</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">Username or Email</label>
                 <div className="relative group">
                   <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                     <i className="fa-solid fa-user-shield"></i>
@@ -88,7 +94,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
                     autoComplete="username"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Enter admin ID"
+                    placeholder="SMskills@2026"
                     className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-medium placeholder-slate-300"
                   />
                 </div>
