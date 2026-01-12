@@ -1,4 +1,6 @@
 
+
+
 import { Request, Response, NextFunction } from 'express';
 import pool from '../config/database';
 import { sendResponse } from '../utils/response';
@@ -10,7 +12,8 @@ export class LeadsController {
    */
   static async createLead(req: Request, res: Response, next: NextFunction) {
     try {
-      const { fullName, email, phone, course, message, source, details } = req.body;
+      // Fix: Cast req to any as Request type in this environment does not expose 'body'
+      const { fullName, email, phone, course, message, source, details } = (req as any).body;
 
       if (!fullName || !email || !phone) {
         return sendResponse(res, 400, false, 'Required fields missing');
@@ -21,15 +24,27 @@ export class LeadsController {
         [fullName, email, phone, course, message, source, JSON.stringify(details || {})]
       );
 
-      // Fetch recipient list from site configuration (assuming site_config table or JSON blob)
-      const [config]: any = await pool.execute('SELECT notification_emails FROM site_config LIMIT 1');
-      const recipients = config[0]?.notification_emails ? JSON.parse(config[0].notification_emails) : [];
-
-      if (recipients.length > 0) {
-          await EmailService.notifyNewLead(req.body, recipients);
+      // Fetch dynamic recipient list from database
+      const [config]: any = await pool.execute('SELECT notification_emails FROM site_config WHERE id = 1');
+      
+      let recipients: string[] = [];
+      try {
+        const rawEmails = config[0]?.notification_emails;
+        if (rawEmails) {
+          // Handle both JSON strings and JS objects if the driver auto-parses
+          recipients = typeof rawEmails === 'string' ? JSON.parse(rawEmails) : rawEmails;
+        }
+      } catch (e) {
+        console.error("Configuration parse error:", e);
       }
 
-      return sendResponse(res, 201, true, 'Lead recorded successfully', { id: result.insertId });
+      // If recipients exist, dispatch the multi-email notification
+      if (recipients.length > 0) {
+          // Fix: Cast req to any as Request type in this environment does not expose 'body'
+          await EmailService.notifyNewLead((req as any).body, recipients);
+      }
+
+      return sendResponse(res, 201, true, 'Application processed successfully', { id: result.insertId });
     } catch (error) {
       next(error);
     }
@@ -53,7 +68,8 @@ export class LeadsController {
   static async updateLeadStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = (req as any).params;
-      const { status } = req.body;
+      // Fix: Cast req to any as Request type in this environment does not expose 'body'
+      const { status } = (req as any).body;
       await pool.execute('UPDATE leads SET status = ? WHERE id = ?', [status, id]);
       return sendResponse(res, 200, true, 'Status updated');
     } catch (error) {

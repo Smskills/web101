@@ -1,3 +1,4 @@
+
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { sendResponse } from '../utils/response';
@@ -5,7 +6,8 @@ import { sendResponse } from '../utils/response';
 export class AuthController {
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { identifier, password } = req.body;
+      // Fix: Cast req to any as Request type in this environment does not expose 'body'
+      const { identifier, password } = (req as any).body;
 
       if (!identifier || !password) {
         return sendResponse(res, 400, false, 'Identifier and password are required');
