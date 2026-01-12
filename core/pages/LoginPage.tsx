@@ -26,8 +26,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
     
     // Simulate institutional processing delay
     setTimeout(() => {
-      // VALIDATION LOGIC: Replaces failing fetch request
-      if (identifier === AUTHORIZED_ADMIN && password === AUTHORIZED_PASS) {
+      // Robust Validation: Trim whitespace and ignore case for the username
+      const cleanId = identifier.trim().toLowerCase();
+      const cleanPass = password.trim();
+
+      if (cleanId === AUTHORIZED_ADMIN && cleanPass === AUTHORIZED_PASS) {
         // SUCCESS: Secure state persistence
         localStorage.setItem('sms_auth_token', 'secure_session_token_' + Date.now());
         localStorage.setItem('sms_is_auth', 'true');
@@ -82,6 +85,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
                   <input 
                     required
                     type="text"
+                    autoComplete="username"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Enter admin ID"
@@ -102,6 +106,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
                   <input 
                     required
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
