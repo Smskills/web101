@@ -40,7 +40,7 @@ export interface SiteConfig {
   tagline: string;
   logo: string;
   loginLabel?: string;
-  notificationEmails?: string[]; // Multiple emails for notifications
+  notificationEmails?: string[]; // Added for multi-email support
   contact: {
     email: string;
     phone: string;
@@ -247,7 +247,7 @@ export interface AppState {
     list: FAQItem[];
     pageMeta: PageMeta;
   };
-  leads?: Lead[]; // Local store for leads in dashboard
+  leads?: Lead[];
   customPages: CustomPage[];
   galleryMetadata?: Record<string, string>;
   enrollmentForm: {

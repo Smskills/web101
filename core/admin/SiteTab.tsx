@@ -52,7 +52,6 @@ const SiteTab: React.FC<SiteTabProps> = ({
                 </div>
             </div>
 
-            {/* Multiple Notification Emails */}
             <div className="space-y-3 p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
                 <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                     <i className="fa-solid fa-envelope-circle-check"></i> Lead Notification Recipients
@@ -96,6 +95,24 @@ const SiteTab: React.FC<SiteTabProps> = ({
                <option value="full">Round Pill</option>
             </select>
           </div>
+        </div>
+      </div>
+      
+      <div className="space-y-8 bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700">
+        <div className="flex justify-between items-center">
+          <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-compass"></i> NAVIGATION</h3>
+          <button onClick={addNavigation} className="text-xs font-black bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 rounded-full">ADD LINK</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {data.navigation.map((nav, idx) => (
+            <div key={idx} className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center gap-4 group">
+               <div className="flex-grow space-y-2">
+                 <input value={nav.label} onChange={e => updateNavigation(idx, 'label', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white" />
+                 <input value={nav.path} onChange={e => updateNavigation(idx, 'path', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-emerald-500 font-mono" />
+               </div>
+               <button onClick={() => removeNavigation(idx)} className="text-red-500 opacity-0 group-hover:opacity-100"><i className="fa-solid fa-trash"></i></button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

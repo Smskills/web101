@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import pool from '../config/database';
 import { sendResponse } from '../utils/response';
-// import { EmailService } from '../services/email.service'; 
+import { EmailService } from '../services/email.service'; 
 
 export class LeadsController {
   /**
@@ -18,11 +18,16 @@ export class LeadsController {
 
       const [result]: any = await pool.execute(
         'INSERT INTO leads (full_name, email, phone, course, message, source, status, details, created_at) VALUES (?, ?, ?, ?, ?, ?, "New", ?, NOW())',
-        [fullName, email, phone, course, message, source, JSON.stringify(details)]
+        [fullName, email, phone, course, message, source, JSON.stringify(details || {})]
       );
 
-      // TRIGGER EMAIL NOTIFICATION (Logic placeholder)
-      // await EmailService.notifyNewLead(req.body);
+      // Fetch recipient list from site configuration (assuming site_config table or JSON blob)
+      const [config]: any = await pool.execute('SELECT notification_emails FROM site_config LIMIT 1');
+      const recipients = config[0]?.notification_emails ? JSON.parse(config[0].notification_emails) : [];
+
+      if (recipients.length > 0) {
+          await EmailService.notifyNewLead(req.body, recipients);
+      }
 
       return sendResponse(res, 201, true, 'Lead recorded successfully', { id: result.insertId });
     } catch (error) {
