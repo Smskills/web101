@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { AppState, FormField } from '../types.ts';
@@ -49,16 +48,12 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
 
     const fields = enrollmentForm.fields || [];
 
-    // --- HEURISTIC FIELD DISCOVERY ---
-    // We search through the form to find which fields correspond to the required DB properties
-    
-    // 1. Discover Email
+    // --- HEURISTIC FIELD DISCOVERY (Kept from previous fix) ---
     let emailField = fields.find(f => f.type === 'email') || 
                      fields.find(f => (f.label || '').toLowerCase().includes('email')) ||
                      fields.find(f => (formData[f.id] || '').includes('@'));
     const email = emailField ? formData[emailField.id] : (formData[fields[1]?.id] || '');
 
-    // 2. Discover Phone
     let phoneField = fields.find(f => f.type === 'tel') || 
                      fields.find(f => {
                        const l = (f.label || '').toLowerCase();
@@ -66,19 +61,16 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                      });
     const phone = phoneField ? formData[phoneField.id] : (formData[fields[4]?.id] || formData[fields[2]?.id] || '');
 
-    // 3. Discover Full Name
     let nameField = fields.find(f => {
                       const l = (f.label || '').toLowerCase();
                       return l.includes('name') || l.includes('student') || l.includes('applicant');
                     }) || fields[0];
     const fullName = nameField ? formData[nameField.id] : 'Applicant';
 
-    // 4. Discover Course
     let courseField = fields.find(f => f.type === 'course-select') || 
                       fields.find(f => (f.label || '').toLowerCase().includes('course'));
     const course = courseField ? formData[courseField.id] : 'N/A';
 
-    // 5. Discover Message
     let messageField = fields.find(f => f.type === 'textarea');
     const message = messageField ? formData[messageField.id] : 'Application via Enrollment Form';
 
@@ -161,6 +153,15 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                   </div>
                 ))}
               </div>
+
+              {/* Help Desk UI Block */}
+              <div className="mt-20 p-8 bg-white/[0.03] backdrop-blur-sm rounded-[2rem] border border-white/5 text-center group hover:bg-white/[0.05] transition-all">
+                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-4 text-emerald-500 border border-white/5 shadow-lg">
+                  <i className="fa-solid fa-headset"></i>
+                </div>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Help Desk</p>
+                <p className="text-lg font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight">{site?.contact?.phone || 'N/A'}</p>
+              </div>
           </div>
 
           <div className="flex-grow p-10 md:p-16 lg:p-20">
@@ -209,9 +210,17 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                   );
                 })}
               </div>
-              <button disabled={isSubmitting} type="submit" className="w-full py-7 bg-emerald-600 text-white font-black rounded-3xl hover:bg-emerald-700 transition-all uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-4 active:scale-[0.98] focus:ring-4 focus:ring-emerald-500/30">
-                {isSubmitting ? <><i className="fa-solid fa-circle-notch fa-spin"></i> Processing Application...</> : <>Submit Official Request <i className="fa-solid fa-paper-plane text-sm"></i></>}
-              </button>
+
+              <div className="space-y-8 pt-4">
+                <button disabled={isSubmitting} type="submit" className="w-full py-7 bg-emerald-600 text-white font-black rounded-3xl hover:bg-emerald-700 transition-all uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-4 active:scale-[0.98] focus:ring-4 focus:ring-emerald-500/30">
+                  {isSubmitting ? <><i className="fa-solid fa-circle-notch fa-spin"></i> Processing Application...</> : <>Submit Official Request <i className="fa-solid fa-paper-plane text-sm"></i></>}
+                </button>
+                
+                {/* Legal Disclaimer Block */}
+                <p className="text-[11px] text-slate-500 font-medium text-center leading-relaxed max-w-lg mx-auto">
+                  By submitting this application, you acknowledge that you have read and agree to our <Link to="/privacy-policy" className="text-emerald-600 font-black hover:underline transition-all">Privacy Policy</Link> and <Link to="/terms-of-service" className="text-emerald-600 font-black hover:underline transition-all">Terms of Service</Link>.
+                </p>
+              </div>
             </form>
           </div>
         </div>
