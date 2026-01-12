@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SiteConfig, AppState, FormField } from '../types';
 
@@ -21,43 +22,31 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [], content 
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // --- ROBUST FIELD EXTRACTION ---
-    const getValByLogic = (predicate: (f: FormField) => boolean) => {
-      const field = contactForm.fields.find(predicate);
-      return field ? (formData[field.id] || '').trim() : null;
-    };
+    const fields = contactForm.fields || [];
 
-    const email = getValByLogic(f => f.type === 'email') || 
-                  getValByLogic(f => (f.label || '').toLowerCase().includes('email')) || '';
-    
-    const phone = getValByLogic(f => f.type === 'tel') || 
-                  getValByLogic(f => {
-                    const l = (f.label || '').toLowerCase();
-                    return l.includes('phone') || l.includes('contact') || l.includes('mobile') || l.includes('number');
-                  }) || '';
+    // --- HEURISTIC FIELD DISCOVERY ---
+    let nameField = fields.find(f => (f.label || '').toLowerCase().includes('name')) || fields[0];
+    let emailField = fields.find(f => f.type === 'email' || (f.label || '').toLowerCase().includes('email')) || fields[1];
+    let phoneField = fields.find(f => f.type === 'tel' || (f.label || '').toLowerCase().includes('phone') || (f.label || '').toLowerCase().includes('contact'));
 
-    const fullName = getValByLogic(f => {
-                       const l = (f.label || '').toLowerCase();
-                       return l.includes('name') || l.includes('student');
-                     }) || 'Inquirer';
+    const fullName = nameField ? formData[nameField.id] : 'Inquirer';
+    const email = emailField ? formData[emailField.id] : 'no-email@example.com';
+    const phone = phoneField ? formData[phoneField.id] : 'N/A';
 
-    const course = getValByLogic(f => f.type === 'course-select') || 'General Support';
-    const message = getValByLogic(f => f.type === 'textarea') || 'No details provided.';
+    let courseField = fields.find(f => f.type === 'course-select');
+    const course = courseField ? formData[courseField.id] : 'General Inquiry';
 
-    if (!fullName || !email) {
-      setErrorMessage("Required fields (Name or Email) were not detected correctly.");
-      setIsSubmitting(false);
-      return;
-    }
+    let messageField = fields.find(f => f.type === 'textarea');
+    const message = messageField ? formData[messageField.id] : 'Website Inquiry';
 
     try {
       const response = await fetch('http://localhost:5000/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullName,
-          email,
-          phone,
+          fullName: fullName || 'Inquirer',
+          email: email || 'not-provided@example.com',
+          phone: phone || '0000000000',
           course,
           message,
           source: 'contact',

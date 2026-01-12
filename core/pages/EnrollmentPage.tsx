@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { AppState, FormField } from '../types.ts';
@@ -46,52 +47,50 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // --- ENHANCED ROBUST FIELD MAPPING ---
-    // We look for Name, Email, and Phone using multiple strategies to ensure they aren't missed
-    const getValByLogic = (predicate: (f: FormField) => boolean) => {
-      const field = enrollmentForm.fields.find(predicate);
-      return field ? (formData[field.id] || '').trim() : null;
-    };
+    const fields = enrollmentForm.fields || [];
 
-    // 1. Find Email: Priority to type='email', then label containing 'email'
-    const email = getValByLogic(f => f.type === 'email') || 
-                  getValByLogic(f => (f.label || '').toLowerCase().includes('email')) || '';
+    // --- HEURISTIC FIELD DISCOVERY ---
+    // We search through the form to find which fields correspond to the required DB properties
+    
+    // 1. Discover Email
+    let emailField = fields.find(f => f.type === 'email') || 
+                     fields.find(f => (f.label || '').toLowerCase().includes('email')) ||
+                     fields.find(f => (formData[f.id] || '').includes('@'));
+    const email = emailField ? formData[emailField.id] : (formData[fields[1]?.id] || '');
 
-    // 2. Find Phone: Priority to type='tel', then labels containing phone/mobile/contact/number
-    const phone = getValByLogic(f => f.type === 'tel') || 
-                  getValByLogic(f => {
-                    const l = (f.label || '').toLowerCase();
-                    return l.includes('phone') || l.includes('mobile') || l.includes('contact') || l.includes('number');
-                  }) || '';
-
-    // 3. Find Full Name: Priority to labels containing name/student/applicant
-    const fullName = getValByLogic(f => {
+    // 2. Discover Phone
+    let phoneField = fields.find(f => f.type === 'tel') || 
+                     fields.find(f => {
                        const l = (f.label || '').toLowerCase();
-                       return l.includes('name') || l.includes('student') || l.includes('applicant');
-                     }) || 'Applicant';
+                       return l.includes('phone') || l.includes('contact') || l.includes('mobile') || l.includes('number') || l.includes('whatsapp');
+                     });
+    const phone = phoneField ? formData[phoneField.id] : (formData[fields[4]?.id] || formData[fields[2]?.id] || '');
 
-    // 4. Find Course and Message
-    const course = getValByLogic(f => f.type === 'course-select') || 
-                   getValByLogic(f => (f.label || '').toLowerCase().includes('course')) || 'N/A';
+    // 3. Discover Full Name
+    let nameField = fields.find(f => {
+                      const l = (f.label || '').toLowerCase();
+                      return l.includes('name') || l.includes('student') || l.includes('applicant');
+                    }) || fields[0];
+    const fullName = nameField ? formData[nameField.id] : 'Applicant';
 
-    const message = getValByLogic(f => f.type === 'textarea') || 'Enrollment Submission';
+    // 4. Discover Course
+    let courseField = fields.find(f => f.type === 'course-select') || 
+                      fields.find(f => (f.label || '').toLowerCase().includes('course'));
+    const course = courseField ? formData[courseField.id] : 'N/A';
 
-    // FINAL CHECK: Ensure values actually exist before sending to backend
-    if (!fullName || !email || !phone) {
-      setErrorMessage("System Error: Could not identify Name, Email, or Phone boxes. Please check field labels in Admin Panel.");
-      setIsSubmitting(false);
-      return;
-    }
+    // 5. Discover Message
+    let messageField = fields.find(f => f.type === 'textarea');
+    const message = messageField ? formData[messageField.id] : 'Application via Enrollment Form';
 
     try {
       const response = await fetch('http://localhost:5000/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullName,
-          email,
-          phone,
-          course,
+          fullName: fullName || 'Applicant',
+          email: email || 'not-provided@example.com',
+          phone: phone || '0000000000',
+          course: course || 'General',
           message,
           source: 'enrollment',
           details: { ...formData }
@@ -103,10 +102,10 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        setErrorMessage(result.message || 'The server rejected the application.');
+        setErrorMessage(result.message || 'Submission failed. Please check that Name, Email and Phone are correctly filled.');
       }
     } catch (err) {
-      setErrorMessage('Network Error: Could not reach the server. Is the backend running?');
+      setErrorMessage('Connection Error: The institutional server is currently unreachable.');
     } finally {
       setIsSubmitting(false);
     }
