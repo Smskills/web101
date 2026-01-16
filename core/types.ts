@@ -35,12 +35,21 @@ export interface Lead {
   details?: Record<string, any>; // For extra form fields
 }
 
+export interface AdmissionAlert {
+  enabled: boolean;
+  text: string;
+  subtext: string;
+  linkText: string;
+  linkPath: string;
+}
+
 export interface SiteConfig {
   name: string;
   tagline: string;
   logo: string;
   loginLabel?: string;
   notificationEmails?: string[]; // Added for multi-email support
+  admissionAlert?: AdmissionAlert; // Point 3: Toggleable top bar
   contact: {
     email: string;
     phone: string;

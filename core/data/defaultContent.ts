@@ -1,3 +1,4 @@
+
 import { AppState } from '../types';
 
 export const INITIAL_CONTENT: AppState = {
@@ -6,6 +7,13 @@ export const INITIAL_CONTENT: AppState = {
     tagline: "Training Institute • ESTD 2024",
     logo: "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png", 
     loginLabel: "Login",
+    admissionAlert: {
+      enabled: true,
+      text: "2024 Admissions Now Open:",
+      subtext: "Secure your future with our vocational tracks.",
+      linkText: "Apply Today",
+      linkPath: "/enroll"
+    },
     contact: {
       email: "admissions@sm-skills.edu",
       phone: "+1 (555) 2024-SMS",
