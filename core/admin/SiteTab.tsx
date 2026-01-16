@@ -59,13 +59,13 @@ const SiteTab: React.FC<SiteTabProps> = ({
 
             <div className="space-y-3 p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
                 <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <i className="fa-solid fa-envelope-circle-check"></i> Institutional Lead Notifications
+                    <i className="fa-solid fa-envelope-circle-check"></i> Lead Notifications
                 </label>
                 <input 
                     defaultValue={(data.notificationEmails || []).join(', ')} 
                     onBlur={e => handleEmailsChange(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-slate-200 font-mono text-xs focus:border-emerald-500 outline-none"
-                    placeholder="e.g. registrar@sm-skills.in"
+                    placeholder="e.g. registrar@sm-skills.edu"
                 />
                 <p className="text-[8px] text-slate-500 font-bold uppercase mt-1 ml-1 tracking-[0.2em]">Enquiry alerts will be dispatched to these addresses.</p>
             </div>
@@ -73,7 +73,7 @@ const SiteTab: React.FC<SiteTabProps> = ({
         </div>
       </div>
 
-      {/* Point 3: Admission Alert Management */}
+      {/* Admission Alert Management */}
       <div className="space-y-8 bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700">
         <div className="flex justify-between items-center">
           <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-bullhorn"></i> ADMISSION TOP BAR</h3>
@@ -87,25 +87,25 @@ const SiteTab: React.FC<SiteTabProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alert Highlight Text</label>
-              <input value={data.admissionAlert?.text} onChange={e => updateAlert('text', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-white font-black focus:border-emerald-500 outline-none" placeholder="e.g. 2024 Admissions Now Open:" />
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alert Headline</label>
+              <input value={data.admissionAlert?.text} onChange={e => updateAlert('text', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-bold outline-none focus:border-emerald-500" placeholder="e.g. 2024 Admissions Now Open:" />
           </div>
           <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alert Subtext</label>
-              <input value={data.admissionAlert?.subtext} onChange={e => updateAlert('subtext', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-white font-black focus:border-emerald-500 outline-none" placeholder="e.g. Secure your future with our vocational tracks." />
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alert Description</label>
+              <input value={data.admissionAlert?.subtext} onChange={e => updateAlert('subtext', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-medium outline-none focus:border-emerald-500" placeholder="e.g. Secure your future with our vocational tracks." />
           </div>
           <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Label</label>
-              <input value={data.admissionAlert?.linkText} onChange={e => updateAlert('linkText', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-white font-black focus:border-emerald-500 outline-none" placeholder="e.g. Apply Today" />
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Button Text</label>
+              <input value={data.admissionAlert?.linkText} onChange={e => updateAlert('linkText', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-bold outline-none focus:border-emerald-500" placeholder="Apply Today" />
           </div>
           <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Destination</label>
-              <input value={data.admissionAlert?.linkPath} onChange={e => updateAlert('linkPath', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-emerald-400 font-mono text-xs focus:border-emerald-500 outline-none" placeholder="/enroll" />
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Path</label>
+              <input value={data.admissionAlert?.linkPath} onChange={e => updateAlert('linkPath', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-emerald-400 font-mono text-xs outline-none focus:border-emerald-500" placeholder="/enroll" />
           </div>
         </div>
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-4">
            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-           <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">Status dot is hardcoded to institutional red for high urgency visibility.</p>
+           <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">The status dot is set to institutional red for high urgency visibility.</p>
         </div>
       </div>
 
@@ -136,24 +136,6 @@ const SiteTab: React.FC<SiteTabProps> = ({
                <option value="full">Round Pill</option>
             </select>
           </div>
-        </div>
-      </div>
-      
-      <div className="space-y-8 bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700">
-        <div className="flex justify-between items-center">
-          <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-compass"></i> NAVIGATION HIERARCHY</h3>
-          <button onClick={addNavigation} className="text-xs font-black bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 rounded-full shadow-lg">ADD LINK</button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.navigation.map((nav, idx) => (
-            <div key={idx} className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center gap-4 group">
-               <div className="flex-grow space-y-2">
-                 <input value={nav.label} onChange={e => updateNavigation(idx, 'label', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white" />
-                 <input value={nav.path} onChange={e => updateNavigation(idx, 'path', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs text-emerald-500 font-mono" />
-               </div>
-               <button onClick={() => removeNavigation(idx)} className="text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i className="fa-solid fa-trash-can"></i></button>
-            </div>
-          ))}
         </div>
       </div>
     </div>

@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
-      {/* Top Notification Bar - Controlled via Admin Dashboard */}
+      {/* Top Notification Bar - Admission Alert */}
       {alert.enabled && (
         <div className="bg-slate-900 text-white py-2 px-4 border-b border-white/5 h-8 md:h-10 flex items-center">
           <div className="container mx-auto flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em]">

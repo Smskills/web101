@@ -48,8 +48,8 @@ export interface SiteConfig {
   tagline: string;
   logo: string;
   loginLabel?: string;
-  notificationEmails?: string[]; // Added for multi-email support
-  admissionAlert?: AdmissionAlert; // Point 3: Toggleable top bar
+  notificationEmails?: string[];
+  admissionAlert?: AdmissionAlert;
   contact: {
     email: string;
     phone: string;
