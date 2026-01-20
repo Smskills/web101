@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { SiteConfig } from '../types';
@@ -55,12 +54,12 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
         </div>
       )}
 
-      {/* Main Header Row - Height increased for visibility */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 h-28 md:h-36 flex items-center shadow-sm">
+      {/* Main Header Row - Height increased to h-32/h-44 to accommodate larger logo */}
+      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 h-32 md:h-44 flex items-center shadow-sm">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-4 md:gap-6 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-xl" aria-label={`${config.name} - Institutional Home`}>
-            {/* Logo Container size significantly increased as requested */}
-            <div className="w-20 h-20 md:w-32 md:h-32 flex items-center justify-center transition-all group-hover:scale-105">
+          <Link to="/" className="flex items-center gap-4 md:gap-8 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-xl" aria-label={`${config.name} - Institutional Home`}>
+            {/* Logo Container size significantly increased to w-24/w-44 as requested */}
+            <div className="w-24 h-24 md:w-44 md:h-40 flex items-center justify-center transition-all group-hover:scale-105">
               <img 
                 src={logoUrl} 
                 alt="" 
@@ -69,12 +68,12 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
               />
             </div>
             <div className="flex flex-col leading-none">
-              {/* Brand Name size increased */}
-              <span className="font-black text-xl md:text-4xl text-emerald-600 tracking-tighter uppercase whitespace-nowrap">
+              {/* Brand Name size increased to match larger logo */}
+              <span className="font-black text-2xl md:text-5xl text-emerald-600 tracking-tighter uppercase whitespace-nowrap">
                 {config.name}
               </span>
-              {/* Tagline size and spacing increased */}
-              <span className="text-[9px] md:text-xs text-emerald-600 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-2 opacity-90">
+              {/* Tagline spacing slightly adjusted */}
+              <span className="text-[10px] md:text-sm text-emerald-600 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-3 opacity-90">
                 {config.tagline}
               </span>
             </div>
