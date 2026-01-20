@@ -149,7 +149,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
     <div className="min-h-screen bg-slate-900 text-slate-100 pb-20 font-sans">
       <input type="file" ref={genericUploadRef} className="hidden" accept="image/*" onChange={handleGenericUpload} />
 
-      <div className="bg-slate-800 border-b border-slate-700 p-6 sticky top-0 z-40 shadow-2xl">
+      {/* Admin Action Bar - Sticky below the main header (h-28 md:h-36) */}
+      <div className="bg-slate-800 border-b border-slate-700 p-6 sticky top-28 md:top-36 z-40 shadow-2xl">
         <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-black uppercase tracking-tight">
