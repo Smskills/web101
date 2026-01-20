@@ -21,7 +21,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
     setError('');
     
     try {
-      // Connect to the production hardened backend
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,22 +30,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
       const result = await response.json();
 
       if (result.success) {
-        // Points to Point 2: Storing the cryptographically signed JWT
         localStorage.setItem('sms_auth_token', result.data.token);
         localStorage.setItem('sms_is_auth', 'true');
         localStorage.setItem('sms_auth_user', JSON.stringify(result.data.user));
         
-        // Notify the rest of the application that auth state has changed
         window.dispatchEvent(new Event('authChange'));
-        
-        // Redirect to the now-secured Admin Panel
         navigate('/admin');
       } else {
-        // Detailed error reporting (e.g. Account Locked, Invalid Password)
         setError(result.message || 'Institutional access denied.');
       }
     } catch (err) {
-      setError('Connection Error: The backend server is unreachable. Check your Node.js console.');
+      setError('Connection Error: The backend server is unreachable.');
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +48,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
-      {/* Visual Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-emerald-500/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-slate-900/5 rounded-full blur-[100px]"></div>
@@ -88,14 +81,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
                     autoComplete="username"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="e.g. SMskills@2026"
+                    placeholder="Username"
                     className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-medium placeholder-slate-300"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">Password</label>
+                <div className="flex justify-between items-center ml-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Password</label>
+                  <Link to="/forgot-password" size="sm" className="text-[9px] font-black text-emerald-600 hover:text-emerald-700 uppercase tracking-widest transition-colors">
+                    Forgot Password?
+                  </Link>
+                </div>
                 <div className="relative group">
                   <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                     <i className="fa-solid fa-key"></i>

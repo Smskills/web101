@@ -25,6 +25,8 @@ import FAQPage from './pages/FAQPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import CustomPageView from './pages/CustomPageView.tsx';
 import LoginPage from './pages/LoginPage.tsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 
 const ProtectedRoute: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ isAuthenticated, children }) => {
   if (!isAuthenticated) {
@@ -36,7 +38,6 @@ const ProtectedRoute: React.FC<{ isAuthenticated: boolean; children: React.React
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Correct check for Point 2: Hardened JWT Security
     return localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token');
   });
 
@@ -45,7 +46,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const bootstrapConfig = async () => {
       try {
-        // 1. Attempt to fetch master configuration from the real backend
         const response = await fetch('http://localhost:5000/api/config');
         const result = await response.json();
         
@@ -58,7 +58,6 @@ const App: React.FC = () => {
             theme: { ...INITIAL_CONTENT.theme, ...result.data.theme }
           }));
         } else {
-          // 2. Fallback to local storage if DB is empty
           const saved = localStorage.getItem('edu_insta_content');
           if (saved) setContent(JSON.parse(saved));
         }
@@ -74,7 +73,6 @@ const App: React.FC = () => {
     bootstrapConfig();
 
     const handleAuthChange = () => {
-      // Re-verify the session storage when the login status changes
       setIsAuthenticated(localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token'));
     };
 
@@ -109,7 +107,6 @@ const App: React.FC = () => {
     setContent(newContent);
     localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
     
-    // Sync back to central database if admin is authenticated
     if (isAuthenticated) {
       try {
         const token = localStorage.getItem('sms_auth_token');
@@ -154,6 +151,8 @@ const App: React.FC = () => {
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
               <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <LoginPage siteConfig={content.site} />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage siteConfig={content.site} />} />
+              <Route path="/reset-password" element={<ResetPasswordPage siteConfig={content.site} />} />
               {content.customPages.filter(p => p.visible).map(page => (
                 <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}
