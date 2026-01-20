@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
   const btnEnroll = "px-6 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:bg-emerald-50 active:scale-95 shadow-emerald-600/10 hover:text-emerald-600";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300 shadow-sm">
       {/* Top Notification Bar - Admission Alert */}
       {alert.enabled && (
         <div className="bg-slate-900 text-white py-2 px-4 border-b border-white/5 h-8 md:h-10 flex items-center">
@@ -54,33 +54,30 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
         </div>
       )}
 
-      {/* Main Header Row - Height increased to h-32/h-44 to accommodate larger logo */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 h-32 md:h-44 flex items-center shadow-sm">
+      {/* Main Header Row - Height and Logo Increased */}
+      <div className="bg-white/90 backdrop-blur-xl border-b border-slate-200/50 h-32 md:h-44 flex items-center">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center gap-4 md:gap-8 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-xl" aria-label={`${config.name} - Institutional Home`}>
-            {/* Logo Container size significantly increased to w-24/w-44 as requested */}
-            <div className="w-24 h-24 md:w-44 md:h-40 flex items-center justify-center transition-all group-hover:scale-105">
+            {/* Logo Container size significantly increased */}
+            <div className="w-24 h-24 md:w-60 md:h-36 flex items-center justify-center transition-all group-hover:scale-105">
               <img 
                 src={logoUrl} 
-                alt="" 
+                alt={`${config.name} Logo`} 
                 className="w-full h-full object-contain"
-                aria-hidden="true"
               />
             </div>
             <div className="flex flex-col leading-none">
-              {/* Brand Name size increased to match larger logo */}
               <span className="font-black text-2xl md:text-5xl text-emerald-600 tracking-tighter uppercase whitespace-nowrap">
                 {config.name}
               </span>
-              {/* Tagline spacing slightly adjusted */}
-              <span className="text-[10px] md:text-sm text-emerald-600 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-3 opacity-90">
+              <span className="text-[10px] md:text-sm text-emerald-600 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-2 opacity-90">
                 {config.tagline}
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8" aria-label="Main Navigation">
+          <nav className="hidden lg:flex items-center space-x-10" aria-label="Main Navigation">
             {config.navigation.map((item) => {
               const isInternal = isInternalLink(item.path);
               const cleanPath = getCleanPath(item.path);
@@ -125,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
             </Link>
           </nav>
 
-          {/* Mobile Menu Toggle & Action */}
+          {/* Mobile Menu Toggle */}
           <div className="flex lg:hidden items-center gap-4">
              <Link to="/enroll" className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">
                 Enroll
