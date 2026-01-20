@@ -24,21 +24,26 @@ export class LeadsController {
       // BACKGROUND TASK: Find recipients and send email
       (async () => {
         try {
+          console.log(`📬 Lead received from ${fullName}. Fetching notification settings...`);
           const [configRows]: any = await pool.execute('SELECT config_json FROM site_config WHERE id = 1');
           
           if (configRows.length > 0) {
             const siteData = JSON.parse(configRows[0].config_json);
-            // The Admin panel saves notification emails inside the 'site' object
+            
+            // Extract recipients from the 'site' object within config_json
             const recipients = siteData.site?.notificationEmails || [];
 
             if (recipients.length > 0) {
+              console.log(`📧 Notification System: Found ${recipients.length} recipients: ${recipients.join(', ')}`);
               await EmailService.notifyNewLead((req as any).body, recipients);
             } else {
-              console.log('ℹ️ Email Service: No recipients found in Site Config. Check Admin > Site tab.');
+              console.warn('⚠️ Notification System: NO RECIPIENTS FOUND in database config. Please log into Admin Panel > Site Tab and add your email to the "Lead Notifications" field.');
             }
+          } else {
+            console.warn('⚠️ Notification System: No site configuration found in database (site_config table is empty).');
           }
-        } catch (emailError) {
-          console.error("❌ Email Dispatch Failed:", emailError);
+        } catch (emailError: any) {
+          console.error("❌ Notification System Error:", emailError.message);
         }
       })();
 

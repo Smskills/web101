@@ -20,7 +20,8 @@ const SiteTab: React.FC<SiteTabProps> = ({
   updateNavigation, addNavigation, removeNavigation 
 }) => {
   const handleEmailsChange = (val: string) => {
-    const emails = val.split(',').map(e => e.trim()).filter(e => e.includes('@'));
+    // We allow typing, then split into array
+    const emails = val.split(',').map(e => e.trim()).filter(e => e.length > 0);
     updateField('notificationEmails', emails);
   };
 
@@ -62,13 +63,13 @@ const SiteTab: React.FC<SiteTabProps> = ({
                     <i className="fa-solid fa-envelope-circle-check"></i> Lead Notifications
                 </label>
                 <input 
-                    defaultValue={(data.notificationEmails || []).join(', ')} 
-                    onBlur={e => handleEmailsChange(e.target.value)}
+                    value={(data.notificationEmails || []).join(', ')} 
+                    onChange={e => handleEmailsChange(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-slate-200 font-mono text-xs focus:border-emerald-500 outline-none"
-                    placeholder="e.g. registrar@sm-skills.edu"
+                    placeholder="e.g. registrar@sm-skills.edu, info@sm-skills.edu"
                 />
                 <p className="text-[9px] text-emerald-500/70 font-bold uppercase mt-2 ml-1 tracking-widest italic">
-                  * IMPORTANT: Form enquiries will be sent to the emails listed above. Leave blank if you only want to see leads in the dashboard.
+                  * IMPORTANT: Enter your email address (e.g. trideepunch3@gmail.com). This email will receive notifications for all new student inquiries.
                 </p>
             </div>
           </div>
