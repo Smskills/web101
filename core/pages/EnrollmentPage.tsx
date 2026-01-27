@@ -13,17 +13,8 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<Record<string, string>>({});
 
-  // Fix: Provide a complete default object for enrollmentForm to satisfy TypeScript property access for description and others
   const { 
-    enrollmentForm = { 
-      title: 'Enrollment Form', 
-      description: '', 
-      successTitle: 'Application Received', 
-      successMessage: '', 
-      roadmapTitle: 'Enrollment Flow', 
-      roadmapSteps: [], 
-      fields: [] 
-    }, 
+    enrollmentForm = { title: 'Enrollment Form', fields: [], roadmapSteps: [] }, 
     courses, 
     site = { contact: { phone: 'N/A' } } 
   } = content || {};
@@ -198,9 +189,7 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                           <select required={field.required} value={formData[field.id] || ''} onChange={(e) => handleChange(field.id, e.target.value)} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer">
                             <option value="">{field.placeholder || 'Select Track'}</option>
                             {(courses?.list || []).filter(c => c.status === 'Active').map(course => (
-                              <option key={course.id} value={course.name}>
-                                {course.name}
-                              </option>
+                              <option key={course.id} value={course.name}>{course.name}</option>
                             ))}
                           </select>
                           <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><i className="fa-solid fa-chevron-down text-xs"></i></div>

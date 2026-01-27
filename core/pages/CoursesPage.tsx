@@ -1,31 +1,51 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Course, PageMeta } from '../../types.ts';
-import FormattedText from '../FormattedText.tsx';
-import { CardSkeleton } from '../Skeleton.tsx';
+import { AppState, Course } from '../types';
+import FormattedText from '../components/FormattedText.tsx';
+import { CardSkeleton } from '../components/Skeleton.tsx';
+import PageStateGuard from '../components/PageStateGuard.tsx';
 
 interface CoursesPageProps {
-  coursesState: {
-    list: Course[];
-    pageMeta: PageMeta;
-  };
+  coursesState: AppState['courses'];
   isLoading?: boolean;
 }
 
 const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = false }) => {
   const [filter, setFilter] = useState<'All' | 'Online' | 'Offline' | 'Hybrid'>('All');
+  const [search, setSearch] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   
   const { list, pageMeta } = coursesState;
   
-  const filteredCourses = filter === 'All' 
-    ? list 
-    : list.filter(c => c.mode === filter);
-
-  const activeCourses = filteredCourses.filter(c => c.status === 'Active');
+  const filteredCourses = useMemo(() => {
+    return list.filter(c => {
+      const matchesFilter = filter === 'All' || c.mode === filter;
+      const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
+                           c.description.toLowerCase().includes(search.toLowerCase());
+      return matchesFilter && matchesSearch && c.status === 'Active';
+    });
+  }, [list, filter, search]);
 
   const btnSecondary = "w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all active:scale-95 text-center flex items-center justify-center gap-3 shadow-2xl text-[11px] uppercase tracking-widest";
+  const btnOutline = "w-full py-5 border-2 border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-50 transition-all active:scale-95 text-center flex items-center justify-center gap-3 text-[11px] uppercase tracking-widest";
+
+  const loadingFallback = (
+    <div className="container mx-auto px-4 py-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    </div>
+  );
+
+  const emptyFallback = (
+    <div className="text-center py-32 bg-white rounded-[3rem] border-4 border-dashed border-slate-100 max-w-2xl mx-auto shadow-sm">
+       <i className="fa-solid fa-folder-open text-6xl text-slate-200 mb-8 block"></i>
+       <p className="text-slate-400 font-black uppercase tracking-widest">No matching programs found.</p>
+       <button onClick={() => {setFilter('All'); setSearch('');}} className="mt-6 text-emerald-600 font-black uppercase tracking-widest text-[10px] hover:underline">Reset Filters</button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -33,48 +53,55 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10 max-w-4xl">
-          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Professional Curricula</span>
+          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">{pageMeta.tagline}</span>
           <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">{pageMeta.title}</h1>
           <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">{pageMeta.subtitle}</p>
         </div>
       </section>
 
       <div className="container mx-auto px-4 -mt-10 relative z-20 pb-24">
-        {/* Modern Filter Strip */}
-        <div className="flex justify-center mb-20">
-          <div className="flex bg-white/80 backdrop-blur-xl p-2 rounded-[2rem] border border-slate-200 shadow-3xl">
+        {/* Modern Filter & Search Strip */}
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-20 bg-white/80 backdrop-blur-xl p-4 md:p-6 rounded-[2.5rem] border border-slate-200 shadow-3xl">
+          <div className="flex bg-slate-100 p-1.5 rounded-full overflow-x-auto max-w-full">
             {(['All', 'Online', 'Offline', 'Hybrid'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                  filter === f 
-                    ? 'bg-emerald-600 text-white shadow-xl' 
-                    : 'text-slate-500 hover:text-slate-900'
+                className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  filter === f ? 'bg-emerald-600 text-white shadow-xl' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 {f}
               </button>
             ))}
           </div>
+
+          <div className="relative w-full lg:w-96 group">
+            <i className="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors"></i>
+            <input 
+              type="text" 
+              placeholder="Search skill or program..." 
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 bg-slate-100 border-transparent rounded-full text-slate-900 font-medium focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {isLoading ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-              <CardSkeleton />
-            </>
-          ) : (
-            activeCourses.map(course => (
+        <PageStateGuard 
+          isLoading={isLoading} 
+          isEmpty={filteredCourses.length === 0} 
+          loadingFallback={loadingFallback}
+          emptyFallback={emptyFallback}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {filteredCourses.map(course => (
               <div key={course.id} className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden hover:shadow-3xl transition-all flex flex-col group">
                 <div className="h-64 relative overflow-hidden cursor-pointer" onClick={() => setSelectedCourse(course)}>
-                  <img 
-                    src={course.image} 
-                    alt={course.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.5s]"
-                  />
+                  <img src={course.image} alt={course.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.5s]" />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="bg-white text-slate-900 font-black px-6 py-2 rounded-full text-[10px] uppercase tracking-widest shadow-2xl">View Details</span>
+                  </div>
                   <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md text-emerald-600 font-black px-6 py-2 rounded-full text-[10px] shadow-2xl tracking-[0.2em] uppercase">
                     {course.price || 'Scholarship'}
                   </div>
@@ -84,34 +111,23 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
                      <span className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                        <i className="fa-regular fa-clock text-emerald-500"></i> {course.duration}
                      </span>
-                     <span className="w-1.5 h-1.5 bg-slate-200 rounded-full"></span>
                      <span className="flex items-center gap-3 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                        <i className="fa-solid fa-wifi"></i> {course.mode}
                      </span>
                   </div>
                   <h3 className="text-3xl font-black text-slate-900 mb-6 group-hover:text-emerald-600 transition-colors tracking-tight leading-tight cursor-pointer" onClick={() => setSelectedCourse(course)}>{course.name}</h3>
-                  <FormattedText 
-                    text={course.description} 
-                    className="text-slate-500 text-lg leading-relaxed mb-10 flex-grow font-medium line-clamp-3"
-                  />
-                  <button 
-                    onClick={() => setSelectedCourse(course)}
-                    className={btnSecondary}
-                  >
-                    <i className="fa-solid fa-graduation-cap"></i> View Details
-                  </button>
+                  <FormattedText text={course.description} className="text-slate-500 text-lg leading-relaxed mb-10 flex-grow font-medium line-clamp-3" />
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <Link to={`/enroll?course=${encodeURIComponent(course.name)}`} className={btnSecondary}>
+                      <i className="fa-solid fa-graduation-cap"></i> Begin Application
+                    </Link>
+                  </div>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-        
-        {!isLoading && activeCourses.length === 0 && (
-          <div className="text-center py-32 bg-white rounded-[3rem] border-4 border-dashed border-slate-100 max-w-2xl mx-auto shadow-sm">
-             <i className="fa-solid fa-folder-open text-6xl text-slate-200 mb-8 block"></i>
-             <p className="text-slate-400 font-black uppercase tracking-widest">No active programs found in this category.</p>
+            ))}
           </div>
-        )}
+        </PageStateGuard>
       </div>
 
       {/* Course Detail Modal */}
@@ -130,13 +146,13 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
                   <div className="mt-8 space-y-4">
                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Program Value</p>
-                      <p className="text-2xl font-black text-emerald-600">{selectedCourse.price || 'Rs. 0'}</p>
+                      <p className="text-2xl font-black text-emerald-600">{selectedCourse.price || 'Free Enrollment'}</p>
                     </div>
                   </div>
                 </div>
                 <div className="md:w-2/3">
                    <span className="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">{selectedCourse.mode} Track</span>
-                   <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 tracking-tighter leading-tight">{selectedCourse.name}</h2>
+                   <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 tracking-tighter">{selectedCourse.name}</h2>
                    <div className="prose prose-slate max-w-none mb-12">
                      <FormattedText text={selectedCourse.description} className="text-slate-600 text-lg leading-relaxed font-medium" />
                    </div>
@@ -152,7 +168,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
                         <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400"><i className="fa-solid fa-award"></i></div>
                         <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Certification</p>
-                          <p className="font-bold text-slate-900">{selectedCourse.certification || 'SMS Technical Diploma'}</p>
+                          <p className="font-bold text-slate-900">SMS Technical Diploma</p>
                         </div>
                       </div>
                    </div>
