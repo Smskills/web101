@@ -10,6 +10,7 @@ import { CONSTANTS } from './config/constants';
 
 const app: Application = express();
 
+<<<<<<< HEAD
 /**
  * 1. Core Security & Logging
  */
@@ -49,6 +50,29 @@ app.use('/uploads', express.static(CONSTANTS.UPLOADS.ROOT) as any);
  * All routes are prefixed with /api
  * Example: POST /api/login
  */
+=======
+// 1. Core Security & Logging
+// Hardened CORS for production/development consistency
+app.use(cors({
+  origin: '*', // In production, replace with specific domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
+}) as any);
+
+app.use(helmet({ crossOriginResourcePolicy: false }) as any);
+
+if (ENV.NODE_ENV === 'development') app.use(morgan('dev') as any);
+
+// 2. Request Parsing
+app.use(express.json({ limit: ENV.UPLOAD_LIMIT }) as any);
+app.use(express.urlencoded({ extended: true, limit: ENV.UPLOAD_LIMIT }) as any);
+
+// 3. Static File Access
+app.use('/uploads', express.static(CONSTANTS.UPLOADS.ROOT) as any);
+
+// 4. API Core Routing
+>>>>>>> 964abf81776e6c021d5871ef98008b5701eb44a1
 app.use('/api', apiRoutes);
 
 /**

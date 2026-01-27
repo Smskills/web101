@@ -1,10 +1,7 @@
+
 import mysql from 'mysql2/promise';
 import { ENV } from './env';
 
-/**
- * MASTER DATABASE CONNECTION POOL
- * This is the ONLY file authorized to configure MySQL access.
- */
 const pool = mysql.createPool({
   host: ENV.DB.HOST,
   user: ENV.DB.USER,
@@ -18,5 +15,4 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
-// Verification handled in server.ts
 export default pool;

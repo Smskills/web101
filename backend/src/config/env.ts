@@ -1,3 +1,4 @@
+
 import dotenv from 'dotenv';
 import process from 'node:process';
 
@@ -10,9 +11,16 @@ export const ENV = {
     HOST: process.env.DB_HOST || 'localhost',
     USER: process.env.DB_USER || 'root',
     PASS: process.env.DB_PASSWORD || '',
-    NAME: process.env.DB_NAME || 'sms_skills_db',
+    NAME: process.env.DB_NAME || 'smskills_db',
     PORT: parseInt(process.env.DB_PORT || '3306'),
   },
-  JWT_SECRET: process.env.JWT_SECRET || 'institutional_default_secret_key_2024',
-  UPLOAD_LIMIT: process.env.UPLOAD_LIMIT || '10mb'
+  JWT_SECRET: process.env.JWT_SECRET || 'super_strong_secret_change_later',
+  UPLOAD_LIMIT: process.env.UPLOAD_LIMIT || '10mb',
+  SMTP: {
+    HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+    PORT: parseInt(process.env.SMTP_PORT || '587'),
+    USER: process.env.SMTP_USER || '',
+    PASS: process.env.SMTP_PASS || '',
+    SECURE: process.env.SMTP_SECURE === 'true'
+  }
 };

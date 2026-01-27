@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
 import { AppState } from './types.ts';
 
@@ -26,78 +26,61 @@ import NotFoundPage from './pages/NotFoundPage.tsx';
 import CustomPageView from './pages/CustomPageView.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 
+const ProtectedRoute: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ isAuthenticated, children }) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
-  const [content, setContent] = useState<AppState>(() => {
-    const saved = localStorage.getItem('edu_insta_content');
-    if (!saved) return INITIAL_CONTENT;
-    
-    try {
-      const parsed = JSON.parse(saved);
-      
-      if (!parsed || typeof parsed !== 'object' || !parsed.site || !parsed.home) {
-        throw new Error("Invalid state structure detected.");
-      }
-
-      const deepMerge = (target: any, source: any) => {
-        if (!source || typeof source !== 'object') return target;
-        const result = { ...target };
-        for (const key in source) {
-          if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-             result[key] = deepMerge(target[key] || {}, source[key]);
-          } else {
-             result[key] = source[key];
-          }
-        }
-        return result;
-      };
-
-      const migrateList = (key: string, defaultMeta: any): any => {
-        const val = parsed[key];
-        if (Array.isArray(val)) {
-          return { list: val, pageMeta: defaultMeta };
-        }
-        if (val && typeof val === 'object' && val.list) {
-          return {
-            list: val.list,
-            pageMeta: deepMerge(defaultMeta, val.pageMeta)
-          };
-        }
-        return (INITIAL_CONTENT as any)[key] || { list: [], pageMeta: defaultMeta };
-      };
-
-      const baseSite = deepMerge(INITIAL_CONTENT.site, parsed.site);
-      const hasFaq = baseSite.navigation.some((n: any) => n.path === '/faq');
-      if (!hasFaq) {
-        baseSite.navigation.push({ label: "FAQ", path: "/faq" });
-      }
-
-      const mergedState: AppState = {
-        ...INITIAL_CONTENT,
-        site: baseSite,
-        theme: deepMerge(INITIAL_CONTENT.theme, parsed.theme),
-        home: deepMerge(INITIAL_CONTENT.home, parsed.home),
-        about: deepMerge(INITIAL_CONTENT.about, parsed.about),
-        enrollmentForm: deepMerge(INITIAL_CONTENT.enrollmentForm, parsed.enrollmentForm),
-        contactForm: deepMerge(INITIAL_CONTENT.contactForm, parsed.contactForm),
-        placements: deepMerge(INITIAL_CONTENT.placements, parsed.placements),
-        legal: deepMerge(INITIAL_CONTENT.legal, parsed.legal),
-        career: deepMerge(INITIAL_CONTENT.career, parsed.career),
-        courses: migrateList('courses', INITIAL_CONTENT.courses.pageMeta),
-        notices: migrateList('notices', INITIAL_CONTENT.notices.pageMeta),
-        gallery: migrateList('gallery', INITIAL_CONTENT.gallery.pageMeta),
-        faqs: migrateList('faqs', INITIAL_CONTENT.faqs.pageMeta),
-        customPages: parsed.customPages || INITIAL_CONTENT.customPages,
-        galleryMetadata: parsed.galleryMetadata || INITIAL_CONTENT.galleryMetadata
-      };
-
-      return mergedState;
-    } catch (e) {
-      console.error("Educational CMS: Error restoring state. Reverting to defaults.", e);
-      localStorage.removeItem('edu_insta_content');
-      return INITIAL_CONTENT;
-    }
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Correct check for Point 2: Hardened JWT Security
+    return localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token');
   });
+
+  const [content, setContent] = useState<AppState>(INITIAL_CONTENT);
+
+  useEffect(() => {
+    const bootstrapConfig = async () => {
+      try {
+        // 1. Attempt to fetch master configuration from the real backend
+        const response = await fetch('http://localhost:5000/api/config');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setContent(prev => ({
+            ...INITIAL_CONTENT,
+            ...result.data,
+            site: { ...INITIAL_CONTENT.site, ...result.data.site },
+            home: { ...INITIAL_CONTENT.home, ...result.data.home },
+            theme: { ...INITIAL_CONTENT.theme, ...result.data.theme }
+          }));
+        } else {
+          // 2. Fallback to local storage if DB is empty
+          const saved = localStorage.getItem('edu_insta_content');
+          if (saved) setContent(JSON.parse(saved));
+        }
+      } catch (err) {
+        console.warn("Bootstrap: Backend DB unreachable. Using local cache.");
+        const saved = localStorage.getItem('edu_insta_content');
+        if (saved) setContent(JSON.parse(saved));
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    bootstrapConfig();
+
+    const handleAuthChange = () => {
+      // Re-verify the session storage when the login status changes
+      setIsAuthenticated(localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token'));
+    };
+
+    window.addEventListener('authChange', handleAuthChange);
+    return () => window.removeEventListener('authChange', handleAuthChange);
+  }, []);
 
   const brandingStyles = useMemo(() => {
     const { primary, secondary, accent, radius } = content.theme;
@@ -122,28 +105,40 @@ const App: React.FC = () => {
     `;
   }, [content.theme]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsInitializing(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const updateContent = (newContent: AppState) => {
+  const updateContent = async (newContent: AppState) => {
     setContent(newContent);
-    try {
-      localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
-    } catch (err) {
-      console.error("Educational CMS: Failed to save", err);
+    localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
+    
+    // Sync back to central database if admin is authenticated
+    if (isAuthenticated) {
+      try {
+        const token = localStorage.getItem('sms_auth_token');
+        await fetch('http://localhost:5000/api/config', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(newContent)
+        });
+      } catch (e) {
+        console.error("Central Sync Error: Backend unreachable.");
+      }
     }
   };
+
+  if (isInitializing) {
+    return <div className="min-h-screen flex items-center justify-center bg-white"><i className="fa-solid fa-circle-notch fa-spin text-4xl text-emerald-600"></i></div>;
+  }
 
   return (
     <HashRouter>
       <style>{brandingStyles}</style>
       <ScrollToTop />
       <div className="flex flex-col min-h-screen overflow-x-hidden">
-        <Header config={content.site} />
+        <Header config={content.site} isAuthenticated={isAuthenticated} />
         <main id="main-content" className="flex-grow pt-32 focus:outline-none" tabIndex={-1}>
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-600"></i></div>}>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-600"></i></div>}>
             <Routes>
               <Route path="/" element={<HomePage content={content} />} />
               <Route path="/about" element={<AboutPage content={content.about} siteName={content.site.name} />} />
@@ -152,13 +147,13 @@ const App: React.FC = () => {
               <Route path="/gallery" element={<GalleryPage content={content} />} />
               <Route path="/faq" element={<FAQPage faqsState={content.faqs} contact={content.site.contact} />} />
               <Route path="/contact" element={<ContactPage config={content.site.contact} social={content.site.social} content={content} />} />
-              <Route path="/admin" element={<AdminDashboard content={content} onUpdate={updateContent} />} />
+              <Route path="/admin" element={<ProtectedRoute isAuthenticated={isAuthenticated}><AdminDashboard content={content} onUpdate={updateContent} /></ProtectedRoute>} />
               <Route path="/enroll" element={<EnrollmentPage content={content} />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage siteName={content.site.name} data={content.legal.privacy} />} />
               <Route path="/terms-of-service" element={<TermsOfServicePage data={content.legal.terms} />} />
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
-              <Route path="/login" element={<LoginPage siteConfig={content.site} />} />
+              <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <LoginPage siteConfig={content.site} />} />
               {content.customPages.filter(p => p.visible).map(page => (
                 <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}

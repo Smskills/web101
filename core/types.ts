@@ -22,11 +22,34 @@ export interface CustomPage {
   showHeader: boolean;
 }
 
+export interface Lead {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  course: string;
+  message?: string;
+  source: 'contact' | 'enrollment';
+  status: 'New' | 'Contacted' | 'Enrolled' | 'Closed';
+  createdAt: string;
+  details?: Record<string, any>; // For extra form fields
+}
+
+export interface AdmissionAlert {
+  enabled: boolean;
+  text: string;
+  subtext: string;
+  linkText: string;
+  linkPath: string;
+}
+
 export interface SiteConfig {
   name: string;
   tagline: string;
   logo: string;
   loginLabel?: string;
+  notificationEmails?: string[];
+  admissionAlert?: AdmissionAlert;
   contact: {
     email: string;
     phone: string;
@@ -104,14 +127,12 @@ export interface TeamMember {
   image: string;
 }
 
-// Added AchievementStat interface
 export interface AchievementStat {
   id: string;
   label: string;
   value: string;
 }
 
-// Added ExtraChapter interface
 export interface ExtraChapter {
   id: string;
   label: string;
@@ -153,11 +174,9 @@ export interface AboutState {
     label: string;
     title: string;
     image: string;
-    // Updated stats to use AchievementStat[]
     stats: AchievementStat[];
     ctaLabel: string;
   };
-  // Added extraChapters property
   extraChapters: ExtraChapter[];
 }
 
@@ -237,6 +256,7 @@ export interface AppState {
     list: FAQItem[];
     pageMeta: PageMeta;
   };
+  leads?: Lead[];
   customPages: CustomPage[];
   galleryMetadata?: Record<string, string>;
   enrollmentForm: {

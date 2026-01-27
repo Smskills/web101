@@ -1,5 +1,4 @@
-
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   /**
@@ -16,11 +15,16 @@ interface State {
  * Global Error Boundary component to protect the application from 
  * total crashes during runtime rendering exceptions.
  */
-export default class ErrorBoundary extends React.Component<Props, State> {
+export default class ErrorBoundary extends Component<Props, State> {
+  /**
+   * Fix: Explicitly declare state as a class property to ensure TypeScript 
+   * correctly recognizes it on the class instance.
+   */
+  public state: State = { hasError: false };
+
   /**
    * Initialize error tracking state.
    */
-  // Fix: Explicitly defining the constructor to ensure 'props' is correctly initialized and recognized by the TypeScript type system
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
@@ -45,7 +49,10 @@ export default class ErrorBoundary extends React.Component<Props, State> {
    * Renders the children or an error fallback UI.
    */
   public render(): ReactNode {
-    // Access state to check for rendering errors
+    /**
+     * Fix: Access state from the class instance which is now correctly 
+     * typed by extending Component<Props, State>.
+     */
     if (this.state.hasError) {
       // Minimal, neutral fallback UI using existing global Tailwind and FontAwesome
       return (
@@ -69,7 +76,11 @@ export default class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    // Fix: access children from props which are now correctly recognized through standard class component inheritance
-    return this.props.children || null;
+    /**
+     * Fix: Access props from the class instance which is now correctly 
+     * typed by extending Component<Props, State>.
+     */
+    // Fix: Access props through any to resolve 'Property props does not exist on type ErrorBoundary' error
+    return (this as any).props.children || null;
   }
 }
