@@ -142,47 +142,51 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
                      <FormattedText text={selectedCourse.description} className="text-slate-600 text-lg leading-relaxed font-medium" />
                    </div>
 
-                   {/* New: Eligibility and Benefits Display */}
-                   <div className="grid grid-cols-1 gap-10 mb-12">
-                     {selectedCourse.eligibility && (
-                       <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100 relative group">
-                         <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center absolute -top-5 left-8 shadow-lg">
-                           <i className="fa-solid fa-user-check"></i>
-                         </div>
-                         <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Candidate Eligibility</h4>
-                         <FormattedText text={selectedCourse.eligibility} className="text-slate-700 font-medium leading-relaxed" />
-                       </div>
-                     )}
+                   {/* Eligibility Display */}
+                   {selectedCourse.eligibility && (
+                     <div className="mb-10 p-8 bg-slate-50 rounded-3xl border border-slate-100 relative group">
+                        <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center absolute -top-5 left-8 shadow-lg">
+                          <i className="fa-solid fa-user-check"></i>
+                        </div>
+                        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Candidate Eligibility</h4>
+                        <FormattedText text={selectedCourse.eligibility} className="text-slate-700 font-medium leading-relaxed" />
+                     </div>
+                   )}
 
-                     {selectedCourse.benefits && (
-                       <div className="p-8 bg-emerald-600 text-white rounded-3xl relative group shadow-xl">
-                         <div className="w-10 h-10 bg-white text-emerald-600 rounded-xl flex items-center justify-center absolute -top-5 left-8 shadow-lg">
-                           <i className="fa-solid fa-gift"></i>
-                         </div>
-                         <h4 className="text-[11px] font-black text-emerald-100 uppercase tracking-[0.2em] mb-4">Program Benefits</h4>
-                         <FormattedText text={selectedCourse.benefits} className="text-white font-medium leading-relaxed" />
-                       </div>
-                     )}
-                   </div>
+                   {/* Program Benefits Styled like the Reference Image */}
+                   {selectedCourse.benefits && (
+                     <div className="mb-12 p-8 bg-[#059669] text-white rounded-3xl relative group shadow-xl">
+                       <h4 className="text-[10px] font-black text-emerald-100/80 uppercase tracking-[0.2em] mb-4">Program Benefits</h4>
+                       <FormattedText text={selectedCourse.benefits} className="text-lg font-medium leading-relaxed" />
+                     </div>
+                   )}
 
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400"><i className="fa-regular fa-clock"></i></div>
+                   {/* Duration and Certification Icons like the Reference Image */}
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mb-12 items-center">
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 border border-slate-100">
+                          <i className="fa-regular fa-clock text-xl"></i>
+                        </div>
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Duration</p>
-                          <p className="font-bold text-slate-900">{selectedCourse.duration}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Duration</p>
+                          <p className="text-xl font-black text-slate-900">{selectedCourse.duration}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400"><i className="fa-solid fa-award"></i></div>
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 border border-slate-100">
+                          <i className="fa-solid fa-award text-xl"></i>
+                        </div>
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Certification</p>
-                          <p className="font-bold text-slate-900">{selectedCourse.certification || 'SMS Technical Diploma'}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Certification</p>
+                          <p className="text-xl font-black text-slate-900 leading-tight">
+                            {selectedCourse.certification || 'SMS Technical Diploma'}
+                          </p>
                         </div>
                       </div>
                    </div>
-                   <Link to={`/enroll?course=${encodeURIComponent(selectedCourse.name)}`} className={btnSecondary + " py-6"}>
-                     Apply for this program <i className="fa-solid fa-arrow-right ml-2"></i>
+
+                   <Link to={`/enroll?course=${encodeURIComponent(selectedCourse.name)}`} className="w-full py-6 bg-slate-900 text-white font-black rounded-full hover:bg-emerald-600 transition-all active:scale-95 text-center flex items-center justify-center gap-4 shadow-3xl text-[12px] uppercase tracking-[0.3em]">
+                     Apply for this program <i className="fa-solid fa-arrow-right"></i>
                    </Link>
                 </div>
               </div>

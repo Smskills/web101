@@ -71,18 +71,22 @@ const CoursesTab: React.FC<CoursesTabProps> = ({
                   <button onClick={() => handleDelete(course.id, course.name)} className="text-red-500 hover:text-red-400 p-2"><i className="fa-solid fa-trash-can"></i></button>
                 </div>
                 
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Duration</label>
                     <input value={course.duration} onChange={e => updateCourseItem(course.id, 'duration', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white" placeholder="e.g. 12 Months" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Certification</label>
+                    <input value={course.certification || ''} onChange={e => updateCourseItem(course.id, 'certification', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white" placeholder="e.g. Diploma" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Price</label>
                     <input value={course.price} onChange={e => updateCourseItem(course.id, 'price', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white" placeholder="e.g. Rs. 50,000" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Delivery Mode</label>
-                    <select value={course.mode} onChange={e => updateCourseItem(course.id, 'mode', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Mode</label>
+                    <select value={course.mode} onChange={e => updateCourseItem(course.id, 'mode', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white outline-none">
                       <option value="Online">Online</option>
                       <option value="Offline">Offline</option>
                       <option value="Hybrid">Hybrid</option>
@@ -90,7 +94,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status</label>
-                    <select value={course.status} onChange={e => updateCourseItem(course.id, 'status', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500">
+                    <select value={course.status} onChange={e => updateCourseItem(course.id, 'status', e.target.value)} className="w-full bg-slate-800 p-2 rounded text-sm text-white outline-none">
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
                     </select>
