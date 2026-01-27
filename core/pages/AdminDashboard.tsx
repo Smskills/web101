@@ -90,27 +90,43 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
 
   const handleGenericUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !activeUploadPath.current) return;
+    if (!file || !activeUploadPath.current || isProcessing) return;
+    
+    // Clear input value immediately to allow re-uploading the same file if needed 
+    // and prevent browser-level duplicate change triggers
+    const inputElement = e.target;
     
     setIsProcessing(true);
     optimizeImage(file).then(url => {
       setLocalContent(prev => {
+        // CRITICAL FIX: Ensure we clone nested objects to avoid direct state mutation.
+        // Direct mutation causes bugs in React 18 Strict Mode where updaters run twice.
         const next = { ...prev };
         const pathParts = activeUploadPath.current!.split('.');
         
         if (pathParts[0] === 'courses' && activeCourseId.current) {
-          next.courses.list = next.courses.list.map((c: any) => c.id === activeCourseId.current ? { ...c, image: url } : c);
+          next.courses = {
+            ...next.courses,
+            list: next.courses.list.map((c: any) => c.id === activeCourseId.current ? { ...c, image: url } : c)
+          };
           return next;
         }
+        
         if (pathParts[0] === 'gallery') {
            if (pathParts[1] === 'thumbnails') {
               next.galleryMetadata = { ...(next.galleryMetadata || {}), [activeThumbnailCategory.current!]: url };
            } else {
-              next.gallery.list = [{ id: Date.now().toString(), url, category: activeUploadCategory.current, title: '' }, ...next.gallery.list];
+              // Properly clone gallery and list to prevent double-add in StrictMode
+              next.gallery = {
+                ...next.gallery,
+                list: [{ id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`, url, category: activeUploadCategory.current, title: '' }, ...next.gallery.list]
+              };
            }
            return next;
         }
+        
         if (pathParts[0] === 'placements') {
+          next.placements = { ...next.placements };
           if (pathParts[1] === 'reviews') {
             next.placements.reviews = next.placements.reviews.map((r: any) => r.id === activeReviewId.current ? { ...r, image: url } : r);
           } else if (pathParts[1] === 'partners') {
@@ -118,25 +134,38 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
           }
           return next;
         }
+        
         if (pathParts[0] === 'career' && activeCareerServiceId.current) {
-          next.career.services = next.career.services.map((s: any) => s.id === activeCareerServiceId.current ? { ...s, image: url } : s);
+          next.career = {
+            ...next.career,
+            services: next.career.services.map((s: any) => s.id === activeCareerServiceId.current ? { ...s, image: url } : s)
+          };
           return next;
         }
 
+        // Generic deep-ish fallback update
         let current: any = next;
         for (let i = 0; i < pathParts.length - 1; i++) {
-          if (pathParts[i] === 'members' && Array.isArray(current.members)) {
+          const key = pathParts[i];
+          if (key === 'members' && Array.isArray(current.members)) {
              const memberId = pathParts[i+1];
              current.members = current.members.map((m: any) => m.id === memberId ? { ...m, image: url } : m);
              return next;
           }
-          current = current[pathParts[i]];
+          // Clone the intermediate object
+          current[key] = Array.isArray(current[key]) ? [...current[key]] : { ...current[key] };
+          current = current[key];
         }
         current[pathParts[pathParts.length - 1]] = url;
         return next;
       });
       setHasUnsavedChanges(true);
       setIsProcessing(false);
+      inputElement.value = ''; // Reset file input
+    }).catch(err => {
+      console.error("Upload failed:", err);
+      setIsProcessing(false);
+      inputElement.value = '';
     });
   };
 
@@ -149,7 +178,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ content, onUpdate }) =>
     <div className="min-h-screen bg-slate-900 text-slate-100 pb-20 font-sans">
       <input type="file" ref={genericUploadRef} className="hidden" accept="image/*" onChange={handleGenericUpload} />
 
-      <div className="bg-slate-800 border-b border-slate-700 p-6 sticky top-0 z-40 shadow-2xl">
+      {/* Admin Action Bar - Sticky below the full header */}
+      <div className="bg-slate-800 border-b border-slate-700 p-6 sticky top-36 md:top-[11.5rem] z-[80] shadow-2xl">
         <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-black uppercase tracking-tight">

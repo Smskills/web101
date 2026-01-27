@@ -7,67 +7,52 @@ import { EmailService } from '../services/email.service';
 export class LeadsController {
   /**
    * Create a new lead from Website form
-   * Optimized for resilience against missing 'details' or 'source' columns.
    */
   static async createLead(req: Request, res: Response, next: NextFunction) {
     try {
       const { fullName, email, phone, course, message, source, details } = (req as any).body;
 
       if (!fullName || !email || !phone) {
-        return sendResponse(res, 400, false, 'Required fields missing');
+        return sendResponse(res, 400, false, 'Required fields: Name, Email, and Phone are mandatory.');
       }
 
-      let resultId: number = 0;
+      const [result]: any = await pool.execute(
+        'INSERT INTO leads (full_name, email, phone, course, message, source, status, details, created_at) VALUES (?, ?, ?, ?, ?, ?, "New", ?, NOW())',
+        [fullName, email, phone, course, message, source, JSON.stringify(details || {})]
+      );
 
-      // Primary Attempt: Full insert with all columns
-      try {
-        const [result]: any = await pool.execute(
-          'INSERT INTO leads (full_name, email, phone, course, message, source, status, details, created_at) VALUES (?, ?, ?, ?, ?, ?, "New", ?, NOW())',
-          [fullName, email, phone, course, message, source, JSON.stringify(details || {})]
-        );
-        resultId = result.insertId;
-      } catch (dbError: any) {
-        // Fallback Attempt: If 'details' or 'source' is missing, try a basic insert
-        if (dbError.code === 'ER_BAD_FIELD_ERROR') {
-          const [result]: any = await pool.execute(
-            'INSERT INTO leads (full_name, email, phone, course, message, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
-            [fullName, email, phone, course, message]
-          );
-          resultId = result.insertId;
-          console.warn("DB Resilience: Using fallback insert for leads. Update your table schema for full data capture.");
-        } else {
-          throw dbError;
-        }
-      }
-
-      // BACKGROUND PATH: Dispatch email notification
+      // BACKGROUND TASK: Find recipients and send email
       (async () => {
         try {
-          const [configRows]: any = await pool.execute('SELECT notification_emails FROM site_config WHERE id = 1');
+          console.log(`📬 Lead received from ${fullName}. Fetching notification settings...`);
+          const [configRows]: any = await pool.execute('SELECT config_json FROM site_config WHERE id = 1');
           
-          let recipients: string[] = [];
-          if (configRows && configRows[0]?.notification_emails) {
-            const raw = configRows[0].notification_emails;
-            recipients = typeof raw === 'string' ? JSON.parse(raw) : raw;
-          }
+          if (configRows.length > 0) {
+            const siteData = JSON.parse(configRows[0].config_json);
+            
+            // Extract recipients from the 'site' object within config_json
+            const recipients = siteData.site?.notificationEmails || [];
 
-          if (recipients.length > 0) {
-            await EmailService.notifyNewLead((req as any).body, recipients);
+            if (recipients.length > 0) {
+              console.log(`📧 Notification System: Found ${recipients.length} recipients: ${recipients.join(', ')}`);
+              await EmailService.notifyNewLead((req as any).body, recipients);
+            } else {
+              console.warn('⚠️ Notification System: NO RECIPIENTS FOUND in database config. Please log into Admin Panel > Site Tab and add your email to the "Lead Notifications" field.');
+            }
+          } else {
+            console.warn('⚠️ Notification System: No site configuration found in database (site_config table is empty).');
           }
-        } catch (emailError) {
-          console.error("Critical: Background notification failed:", emailError);
+        } catch (emailError: any) {
+          console.error("❌ Notification System Error:", emailError.message);
         }
       })();
 
-      return sendResponse(res, 201, true, 'Application processed successfully', { id: resultId });
+      return sendResponse(res, 201, true, 'Your enquiry has been received.', { id: result.insertId });
     } catch (error) {
       next(error);
     }
   }
 
-  /**
-   * Get all leads for dashboard
-   */
   static async getAllLeads(req: Request, res: Response, next: NextFunction) {
     try {
       const [rows] = await pool.execute('SELECT * FROM leads ORDER BY created_at DESC');
@@ -77,9 +62,6 @@ export class LeadsController {
     }
   }
 
-  /**
-   * Update Status
-   */
   static async updateLeadStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = (req as any).params;
@@ -91,14 +73,11 @@ export class LeadsController {
     }
   }
 
-  /**
-   * Delete Lead
-   */
   static async deleteLead(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = (req as any).params;
       await pool.execute('DELETE FROM leads WHERE id = ?', [id]);
-      return sendResponse(res, 200, true, 'Lead record removed');
+      return sendResponse(res, 200, true, 'Lead removed');
     } catch (error) {
       next(error);
     }

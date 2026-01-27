@@ -4,76 +4,67 @@ import nodemailer from 'nodemailer';
 import { ENV } from '../config/env';
 
 export class EmailService {
-  /**
-   * Transporter configured with connection pooling for maximum speed.
-   * pool: true keeps the SMTP connection open for reuse.
-   */
-  private static transporter = nodemailer.createTransport({
-    host: ENV.SMTP.HOST,
-    port: ENV.SMTP.PORT,
-    secure: ENV.SMTP.SECURE,
-    pool: true, 
-    maxConnections: 5,
-    maxMessages: 100,
-    auth: {
-      user: ENV.SMTP.USER,
-      pass: ENV.SMTP.PASS,
-    },
-  });
+  private static getTransporter() {
+    return nodemailer.createTransport({
+      host: ENV.SMTP.HOST,
+      port: ENV.SMTP.PORT,
+      secure: ENV.SMTP.SECURE,
+      auth: {
+        user: ENV.SMTP.USER,
+        pass: ENV.SMTP.PASS.replace(/\s+/g, ''), // Auto-strip spaces if user left them in .env
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+  }
 
-  /**
-   * Dispatches an email notification. 
-   * Designed to be called without 'await' in controllers for background execution.
-   */
-  static async notifyNewLead(leadData: any, recipients: string[]) {
-    if (!recipients || recipients.length === 0) return;
-
-    const htmlContent = `
-      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 600px;">
-        <h2 style="color: #059669; margin-top: 0;">New ${leadData.source === 'enrollment' ? 'Enrollment Application' : 'General Enquiry'}</h2>
-        <p style="color: #666; font-size: 14px;">A new submission was received on the S M Skills website.</p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-        
-        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #888; width: 150px;">Student Name:</td>
-            <td style="padding: 8px 0; font-weight: bold; color: #111;">${leadData.fullName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #888;">Email:</td>
-            <td style="padding: 8px 0; font-weight: bold; color: #111;">${leadData.email}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #888;">Phone:</td>
-            <td style="padding: 8px 0; font-weight: bold; color: #111;">${leadData.phone}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #888;">Course:</td>
-            <td style="padding: 8px 0; font-weight: bold; color: #059669;">${leadData.course}</td>
-          </tr>
-        </table>
-
-        <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #cbd5e1;">
-            <p style="margin: 0; color: #475569; font-size: 13px;"><strong>Message:</strong></p>
-            <p style="margin: 10px 0 0 0; color: #1e293b; line-height: 1.5;">${leadData.message || 'No additional comments provided.'}</p>
-        </div>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
-            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Automated Alert • S M Skills Institute Management System</p>
-        </div>
-      </div>
-    `;
+  static async sendPasswordResetLink(email: string, token: string, username: string) {
+    const resetUrl = `http://localhost:3000/#/reset-password?token=${token}`;
+    const transporter = this.getTransporter();
 
     try {
-      await this.transporter.sendMail({
-        from: `"S M Skills Portal" <${ENV.SMTP.USER}>`,
-        to: recipients.join(', '),
-        subject: `New Lead: ${leadData.fullName} (${leadData.course})`,
-        html: htmlContent,
+      await transporter.sendMail({
+        from: `"Institutional Security" <${ENV.SMTP.USER}>`,
+        to: email,
+        subject: "Password Reset Request",
+        html: `
+          <div style="font-family: sans-serif; padding: 20px;">
+            <h2>Hello ${username},</h2>
+            <p>Click the button below to reset your S M Skills admin password.</p>
+            <a href="${resetUrl}" style="background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">Reset Password</a>
+            <p>This link expires in 1 hour.</p>
+          </div>
+        `
       });
-      console.log(`✅ Background Email success: Sent to ${recipients.length} recipients for ${leadData.fullName}`);
-    } catch (err) {
-      console.error('❌ Background Email failed:', err);
+      console.log('✅ Email Service: Recovery link sent to', email);
+    } catch (err: any) {
+      console.error('❌ Email Service Error (Auth):', err.message);
+      throw err;
+    }
+  }
+
+  static async notifyNewLead(leadData: any, recipients: string[]) {
+    const transporter = this.getTransporter();
+    try {
+      await transporter.sendMail({
+        from: `"Website Leads" <${ENV.SMTP.USER}>`,
+        to: recipients.join(','),
+        subject: `New Lead: ${leadData.fullName}`,
+        html: `
+          <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #059669;">New Website Submission</h2>
+            <p><strong>Name:</strong> ${leadData.fullName}</p>
+            <p><strong>Email:</strong> ${leadData.email}</p>
+            <p><strong>Phone:</strong> ${leadData.phone}</p>
+            <p><strong>Program:</strong> ${leadData.course}</p>
+            <p><strong>Message:</strong> ${leadData.message || 'N/A'}</p>
+          </div>
+        `
+      });
+      console.log('✅ Email Service: Lead notification sent to staff.');
+    } catch (err: any) {
+      console.error('❌ Email Service Error (Lead):', err.message);
     }
   }
 }

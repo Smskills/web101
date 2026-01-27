@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { INITIAL_CONTENT } from './data/defaultContent.ts';
@@ -25,6 +24,8 @@ import FAQPage from './pages/FAQPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import CustomPageView from './pages/CustomPageView.tsx';
 import LoginPage from './pages/LoginPage.tsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 
 const ProtectedRoute: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ isAuthenticated, children }) => {
   if (!isAuthenticated) {
@@ -36,7 +37,6 @@ const ProtectedRoute: React.FC<{ isAuthenticated: boolean; children: React.React
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Correct check for Point 2: Hardened JWT Security
     return localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token');
   });
 
@@ -45,7 +45,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const bootstrapConfig = async () => {
       try {
-        // 1. Attempt to fetch master configuration from the real backend
         const response = await fetch('http://localhost:5000/api/config');
         const result = await response.json();
         
@@ -58,7 +57,6 @@ const App: React.FC = () => {
             theme: { ...INITIAL_CONTENT.theme, ...result.data.theme }
           }));
         } else {
-          // 2. Fallback to local storage if DB is empty
           const saved = localStorage.getItem('edu_insta_content');
           if (saved) setContent(JSON.parse(saved));
         }
@@ -74,7 +72,6 @@ const App: React.FC = () => {
     bootstrapConfig();
 
     const handleAuthChange = () => {
-      // Re-verify the session storage when the login status changes
       setIsAuthenticated(localStorage.getItem('sms_is_auth') === 'true' && !!localStorage.getItem('sms_auth_token'));
     };
 
@@ -109,7 +106,6 @@ const App: React.FC = () => {
     setContent(newContent);
     localStorage.setItem('edu_insta_content', JSON.stringify(newContent));
     
-    // Sync back to central database if admin is authenticated
     if (isAuthenticated) {
       try {
         const token = localStorage.getItem('sms_auth_token');
@@ -137,7 +133,8 @@ const App: React.FC = () => {
       <ScrollToTop />
       <div className="flex flex-col min-h-screen overflow-x-hidden">
         <Header config={content.site} isAuthenticated={isAuthenticated} />
-        <main id="main-content" className="flex-grow pt-32 focus:outline-none" tabIndex={-1}>
+        {/* pt-36 md:pt-[11.5rem] precisely matches the sum of alert (h-8/10) + header (h-28/36) */}
+        <main id="main-content" className="flex-grow pt-36 md:pt-[11.5rem] focus:outline-none" tabIndex={-1}>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-600"></i></div>}>
             <Routes>
               <Route path="/" element={<HomePage content={content} />} />
@@ -154,6 +151,8 @@ const App: React.FC = () => {
               <Route path="/career-guidance" element={<CareerGuidancePage data={content.career} />} />
               <Route path="/placement-review" element={<PlacementReviewPage placements={content.placements} label={content.home.sectionLabels.placementMainLabel} />} />
               <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <LoginPage siteConfig={content.site} />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage siteConfig={content.site} />} />
+              <Route path="/reset-password" element={<ResetPasswordPage siteConfig={content.site} />} />
               {content.customPages.filter(p => p.visible).map(page => (
                 <Route key={page.id} path={page.slug.startsWith('/') ? page.slug : `/${page.slug}`} element={<CustomPageView page={page} siteConfig={content.site} />} />
               ))}

@@ -1,11 +1,10 @@
-
 import { AppState } from '../types';
 
 export const INITIAL_CONTENT: AppState = {
   site: {
     name: "S M Skills",
     tagline: "Training Institute • ESTD 2024",
-    logo: "https://lwfiles.mycourse.app/62a6cd5-public/6efdd5e.png", 
+    logo: "https://ibb.co/7J6NSF5C", 
     loginLabel: "Login",
     admissionAlert: {
       enabled: true,

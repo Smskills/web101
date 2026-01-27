@@ -13,8 +13,17 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<Record<string, string>>({});
 
+  // Fix: Provide a complete default object for enrollmentForm to satisfy TypeScript property access for description and others
   const { 
-    enrollmentForm = { title: 'Enrollment Form', fields: [], roadmapSteps: [] }, 
+    enrollmentForm = { 
+      title: 'Enrollment Form', 
+      description: '', 
+      successTitle: 'Application Received', 
+      successMessage: '', 
+      roadmapTitle: 'Enrollment Flow', 
+      roadmapSteps: [], 
+      fields: [] 
+    }, 
     courses, 
     site = { contact: { phone: 'N/A' } } 
   } = content || {};
@@ -175,20 +184,11 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
             <form onSubmit={handleSubmit} className="space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                 {(enrollmentForm.fields || []).map(field => {
-<<<<<<< HEAD
-                  const isWide = field.type === 'textarea' || (field.label && field.label.toLowerCase().includes('name')) || (field.label && field.label.toLowerCase().includes('address'));
-                  
-                  return (
-                    <div key={field.id} className={`space-y-3 ${isWide ? 'md:col-span-2' : 'md:col-span-1'}`}>
-                      <label htmlFor={`field-${field.id}`} className="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] ml-1 block">
-                        {field.label} {field.required && <span className="text-red-600 font-black">*</span>}
-=======
                    const isWide = field.type === 'textarea' || (field.label && (field.label.toLowerCase().includes('name') || field.label.toLowerCase().includes('address')));
                    return (
                     <div key={field.id} className={`space-y-3 ${isWide ? 'md:col-span-2' : ''}`}>
                       <label className="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] ml-1 block">
                         {field.label} {field.required && <span className="text-emerald-600">*</span>}
->>>>>>> 964abf81776e6c021d5871ef98008b5701eb44a1
                       </label>
                       {field.type === 'textarea' ? (
                         <textarea required={field.required} value={formData[field.id] || ''} onChange={(e) => handleChange(field.id, e.target.value)} rows={4} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-medium text-slate-900 resize-none placeholder-slate-400 shadow-sm" placeholder={field.placeholder} />
@@ -197,7 +197,9 @@ const EnrollmentPage: React.FC<EnrollmentPageProps> = ({ content }) => {
                           <select required={field.required} value={formData[field.id] || ''} onChange={(e) => handleChange(field.id, e.target.value)} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-black text-[11px] text-slate-900 uppercase tracking-widest appearance-none pr-12 shadow-sm cursor-pointer">
                             <option value="">{field.placeholder || 'Select Track'}</option>
                             {(courses?.list || []).filter(c => c.status === 'Active').map(course => (
-                              <option key={course.id} value={course.name}>{course.name}</option>
+                              <option key={course.id} value={course.name}>
+                                {course.name}
+                              </option>
                             ))}
                           </select>
                           <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><i className="fa-solid fa-chevron-down text-xs"></i></div>

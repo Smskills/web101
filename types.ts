@@ -161,6 +161,7 @@ export interface Course {
   id: string;
   name: string;
   duration: string;
+  certification?: string;
   mode: 'Online' | 'Offline' | 'Hybrid';
   description: string;
   status: 'Active' | 'Inactive';

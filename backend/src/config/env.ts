@@ -14,13 +14,14 @@ export const ENV = {
     NAME: process.env.DB_NAME || 'smskills_db',
     PORT: parseInt(process.env.DB_PORT || '3306'),
   },
-  JWT_SECRET: process.env.JWT_SECRET || 'super_strong_secret_change_later',
+  JWT_SECRET: process.env.JWT_SECRET || 'super_strong_secret_key_change_later',
   UPLOAD_LIMIT: process.env.UPLOAD_LIMIT || '10mb',
   SMTP: {
     HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
     PORT: parseInt(process.env.SMTP_PORT || '587'),
     USER: process.env.SMTP_USER || '',
     PASS: process.env.SMTP_PASS || '',
-    SECURE: process.env.SMTP_SECURE === 'true'
+    // Convert string "false" or "true" from .env correctly
+    SECURE: process.env.SMTP_SECURE === 'true' 
   }
 };

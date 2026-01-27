@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { SiteConfig } from '../types';
@@ -35,11 +34,10 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
 
   const btnNavAction = "px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-2xl active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30";
   
-  // Dedicated styling for the Enroll primary action
-  const btnEnroll = "px-6 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:bg-emerald-500 active:scale-95 shadow-emerald-600/10";
+  const btnEnroll = "px-6 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:bg-emerald-50 active:scale-95 shadow-emerald-600/10 hover:text-emerald-600";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300 shadow-sm">
       {/* Top Notification Bar - Admission Alert */}
       {alert.enabled && (
         <div className="bg-slate-900 text-white py-2 px-4 border-b border-white/5 h-8 md:h-10 flex items-center">
@@ -56,29 +54,29 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
         </div>
       )}
 
-      {/* Main Header Row */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 h-20 md:h-24 flex items-center shadow-sm">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+      {/* Main Header Row - Adjusted padding to move elements to edges */}
+      <div className="bg-white/90 backdrop-blur-xl border-b border-slate-200/50 h-28 md:h-36 flex items-center">
+        <div className="container mx-auto pl-2 pr-2 md:pl-4 md:pr-4 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 md:gap-5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-xl" aria-label={`${config.name} - Institutional Home`}>
-            <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-all group-hover:scale-105">
+            {/* Logo size reduced slightly and shifted left via container padding */}
+            <div className="w-20 h-20 md:w-48 md:h-28 flex items-center justify-center transition-all group-hover:scale-105">
               <img 
                 src={logoUrl} 
-                alt="" 
+                alt={`${config.name} Logo`} 
                 className="w-full h-full object-contain"
-                aria-hidden="true"
               />
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-black text-base md:text-2xl text-emerald-600 tracking-tighter uppercase whitespace-nowrap">
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-xl md:text-4xl text-emerald-600 tracking-tighter uppercase whitespace-nowrap">
                 {config.name}
               </span>
-              <span className="text-[7px] md:text-[9px] text-emerald-600 font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mt-0.5">
+              <span className="text-[9px] md:text-xs text-emerald-600 font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] mt-1.5 opacity-90">
                 {config.tagline}
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Shifted right via container padding */}
           <nav className="hidden lg:flex items-center space-x-8" aria-label="Main Navigation">
             {config.navigation.map((item) => {
               const isInternal = isInternalLink(item.path);
@@ -105,8 +103,7 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
               );
             })}
             
-            {/* Enroll Section Partition */}
-            <div className="h-8 w-px bg-slate-200 mx-2"></div>
+            <div className="h-10 w-px bg-slate-200 mx-2"></div>
 
             <Link to="/enroll" className={btnEnroll}>
               Enroll Now
@@ -125,21 +122,21 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
             </Link>
           </nav>
 
-          {/* Mobile Menu Toggle & Action */}
-          <div className="flex lg:hidden items-center gap-3">
-             <Link to="/enroll" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">
+          {/* Mobile Menu Toggle */}
+          <div className="flex lg:hidden items-center gap-4">
+             <Link to="/enroll" className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">
                 Enroll
              </Link>
              <button 
-                className="w-10 h-10 flex flex-col items-center justify-center text-slate-900 bg-slate-50 border border-slate-200 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all group z-[110]"
+                className="w-12 h-12 flex flex-col items-center justify-center text-slate-900 bg-slate-50 border border-slate-200 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all group z-[110]"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-label="Toggle Navigation Menu"
               >
-                <div className="relative w-5 h-4">
-                  <span className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 top-2' : 'top-0'}`}></span>
-                  <span className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out top-2 ${isMenuOpen ? 'opacity-0 -translate-x-2' : 'opacity-100'}`}></span>
-                  <span className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 top-2' : 'top-4'}`}></span>
+                <div className="relative w-6 h-5">
+                  <span className={`absolute left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 top-2' : 'top-0'}`}></span>
+                  <span className={`absolute left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ease-in-out top-2 ${isMenuOpen ? 'opacity-0 -translate-x-2' : 'opacity-100'}`}></span>
+                  <span className={`absolute left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 top-2' : 'top-4'}`}></span>
                 </div>
               </button>
           </div>
@@ -148,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({ config, isAuthenticated = false }) => {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-28 md:top-34 bg-white border-t border-slate-100 shadow-3xl animate-fade-in-down z-[90] overflow-y-auto max-h-[calc(100vh-8rem)]">
+        <div className="lg:hidden fixed inset-x-0 top-32 bg-white border-t border-slate-100 shadow-3xl animate-fade-in-down z-[90] overflow-y-auto max-h-[calc(100vh-8rem)]">
           <div className="flex flex-col p-8 space-y-4">
             {config.navigation.map((item) => {
               const isInternal = isInternalLink(item.path);

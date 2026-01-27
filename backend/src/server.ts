@@ -1,3 +1,4 @@
+// Fix: Use node:process to ensure the compiler correctly identifies Node.js runtime methods
 import process from 'node:process';
 import app from './app';
 import pool from './config/database';
@@ -21,12 +22,15 @@ async function bootstrap() {
     });
   } catch (error) {
     console.error('❌ BOOTSTRAP ERROR:', error);
+    // Fix: access exit() from the correctly typed node:process module
     process.exit(1);
   }
 }
 
+// Fix: access on() from the correctly typed node:process module
 process.on('unhandledRejection', (err: Error) => {
   console.error('🔥 CRITICAL: Unhandled Promise Rejection ->', err.message);
+  // Fix: access exit() from the correctly typed node:process module
   process.exit(1);
 });
 

@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { AppState } from '../types.ts';
+import { AppState, ThemeConfig, SiteConfig } from '../types.ts';
 
 interface SiteTabProps {
-  data: AppState['site'];
-  theme: AppState['theme'];
+  data: SiteConfig;
+  theme: ThemeConfig;
   updateField: (field: string, value: any) => void;
   updateTheme: (field: string, value: any) => void;
   onLogoUploadClick: () => void;
@@ -20,7 +20,8 @@ const SiteTab: React.FC<SiteTabProps> = ({
   updateNavigation, addNavigation, removeNavigation 
 }) => {
   const handleEmailsChange = (val: string) => {
-    const emails = val.split(',').map(e => e.trim()).filter(e => e.includes('@'));
+    // We allow typing, then split into array
+    const emails = val.split(',').map(e => e.trim()).filter(e => e.length > 0);
     updateField('notificationEmails', emails);
   };
 
@@ -57,23 +58,24 @@ const SiteTab: React.FC<SiteTabProps> = ({
                 </div>
             </div>
 
-            <div className="space-y-3 p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+            <div className="space-y-3 p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
                 <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                     <i className="fa-solid fa-envelope-circle-check"></i> Lead Notifications
                 </label>
                 <input 
-                    defaultValue={(data.notificationEmails || []).join(', ')} 
-                    onBlur={e => handleEmailsChange(e.target.value)}
+                    value={(data.notificationEmails || []).join(', ')} 
+                    onChange={e => handleEmailsChange(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-6 py-4 text-slate-200 font-mono text-xs focus:border-emerald-500 outline-none"
-                    placeholder="e.g. registrar@sm-skills.edu"
+                    placeholder="e.g. registrar@sm-skills.edu, info@sm-skills.edu"
                 />
-                <p className="text-[8px] text-slate-500 font-bold uppercase mt-1 ml-1 tracking-[0.2em]">Enquiry alerts will be dispatched to these addresses.</p>
+                <p className="text-[9px] text-emerald-500/70 font-bold uppercase mt-2 ml-1 tracking-widest italic">
+                  * IMPORTANT: Enter your email address (e.g. trideepunch3@gmail.com). This email will receive notifications for all new student inquiries.
+                </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Admission Alert Management */}
       <div className="space-y-8 bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-700">
         <div className="flex justify-between items-center">
           <h3 className="text-emerald-500 font-black text-lg flex items-center gap-3"><i className="fa-solid fa-bullhorn"></i> ADMISSION TOP BAR</h3>
@@ -94,18 +96,6 @@ const SiteTab: React.FC<SiteTabProps> = ({
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alert Description</label>
               <input value={data.admissionAlert?.subtext} onChange={e => updateAlert('subtext', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-medium outline-none focus:border-emerald-500" placeholder="e.g. Secure your future with our vocational tracks." />
           </div>
-          <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Button Text</label>
-              <input value={data.admissionAlert?.linkText} onChange={e => updateAlert('linkText', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white font-bold outline-none focus:border-emerald-500" placeholder="Apply Today" />
-          </div>
-          <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Link Path</label>
-              <input value={data.admissionAlert?.linkPath} onChange={e => updateAlert('linkPath', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-emerald-400 font-mono text-xs outline-none focus:border-emerald-500" placeholder="/enroll" />
-          </div>
-        </div>
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-4">
-           <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-           <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">The status dot is set to institutional red for high urgency visibility.</p>
         </div>
       </div>
 
