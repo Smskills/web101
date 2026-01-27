@@ -138,13 +138,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ config, social = [], content 
                     const isWide = field.type === 'textarea' || (field.label && field.label.toLowerCase().includes('name'));
                     return (
                       <div key={field.id} className={`space-y-3 ${isWide ? 'md:col-span-2' : 'md:col-span-1'}`}>
-<<<<<<< HEAD
-                        <label htmlFor={`field-${field.id}`} className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 block">
-                          {field.label} {field.required && <span className="text-red-600">*</span>}
-=======
+
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 block">
                           {field.label} {field.required && <span className="text-emerald-600">*</span>}
->>>>>>> 964abf81776e6c021d5871ef98008b5701eb44a1
+
                         </label>
                         {field.type === 'textarea' ? (
                           <textarea required={field.required} value={formData[field.id] || ''} onChange={(e) => handleChange(field.id, e.target.value)} rows={5} className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:outline-none focus:border-emerald-500 transition-all font-medium text-slate-900 resize-none placeholder-slate-300" placeholder={field.placeholder} />
