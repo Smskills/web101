@@ -116,7 +116,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
         )}
       </div>
 
-      {/* Optimized Course Detail Modal - Reduced Whitespace & Compact Design */}
+      {/* Optimized Course Detail Modal */}
       {selectedCourse && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm" onClick={() => setSelectedCourse(null)}></div>
@@ -138,15 +138,20 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
 
                 {/* Right Side: Information Content */}
                 <div className="md:w-7/12 flex flex-col justify-between">
-                   <div className="space-y-6">
+                   <div className="space-y-5">
                       <div>
                         <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-md text-[9px] font-black uppercase tracking-widest mb-3">{selectedCourse.mode} Track</span>
-                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">{selectedCourse.name}</h2>
+                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">{selectedCourse.name}</h2>
+                        
+                        {/* Course description moved here - directly under name */}
+                        <div className="prose prose-slate max-w-none">
+                           <FormattedText text={selectedCourse.description} className="text-slate-600 text-sm md:text-base leading-relaxed font-medium" />
+                        </div>
                       </div>
                       
                       {/* Eligibility Section */}
                       {selectedCourse.eligibility && (
-                        <div className="flex gap-4 items-start">
+                        <div className="flex gap-4 items-start pt-2">
                           <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center shrink-0">
                             <i className="fa-solid fa-user-check text-xs"></i>
                           </div>
@@ -164,11 +169,6 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = fal
                           <FormattedText text={selectedCourse.benefits} className="text-sm md:text-base font-semibold leading-relaxed" />
                         </div>
                       )}
-                      
-                      {/* Shortened description or specific details if needed */}
-                      <div className="prose prose-slate max-w-none">
-                         <FormattedText text={selectedCourse.description} className="text-slate-600 text-sm leading-relaxed font-medium line-clamp-3" />
-                      </div>
                    </div>
 
                    {/* Bottom Row: Icons & Button */}
