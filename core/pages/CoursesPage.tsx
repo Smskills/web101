@@ -1,22 +1,28 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Course } from '../types';
+import { Course, PageMeta } from '../types.ts';
 import FormattedText from '../components/FormattedText.tsx';
 import { CardSkeleton } from '../components/Skeleton.tsx';
 
 interface CoursesPageProps {
-  courses: Course[];
+  coursesState: {
+    list: Course[];
+    pageMeta: PageMeta;
+  };
   isLoading?: boolean;
 }
 
-const CoursesPage: React.FC<CoursesPageProps> = ({ courses, isLoading = false }) => {
+const CoursesPage: React.FC<CoursesPageProps> = ({ coursesState, isLoading = false }) => {
   const [filter, setFilter] = useState<'All' | 'Online' | 'Offline' | 'Hybrid'>('All');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   
+  // Use defensive defaults to prevent crashes if data is missing
+  const { list = [], pageMeta = { title: 'Technical Programs', subtitle: '', tagline: 'Professional Curricula' } } = coursesState || {};
+  
   const filteredCourses = filter === 'All' 
-    ? courses 
-    : courses.filter(c => c.mode === filter);
+    ? list 
+    : list.filter(c => c.mode === filter);
 
   const activeCourses = filteredCourses.filter(c => c.status === 'Active');
 
@@ -28,9 +34,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ courses, isLoading = false })
       <section className="bg-slate-900 pt-32 pb-24 text-white relative overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10 max-w-4xl">
-          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Professional Curricula</span>
-          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">Technical Programs</h1>
-          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">Browse through our industry-verified technical tracks optimized for global employability.</p>
+          <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">{pageMeta.tagline}</span>
+          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">{pageMeta.title}</h1>
+          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">{pageMeta.subtitle}</p>
         </div>
       </section>
 
@@ -82,7 +88,7 @@ const CoursesPage: React.FC<CoursesPageProps> = ({ courses, isLoading = false })
                          <i className="fa-solid fa-wifi"></i> {course.mode}
                        </span>
                     </div>
-                    {/* Price Moved Down Here */}
+                    {/* Price Badge - Positioned below image as requested */}
                     <div className="bg-emerald-50 text-emerald-600 font-black px-4 py-1.5 rounded-lg text-[9px] shadow-sm tracking-widest uppercase border border-emerald-100">
                       {course.price || 'Scholarship'}
                     </div>
