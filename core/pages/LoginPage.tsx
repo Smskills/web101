@@ -15,6 +15,39 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
+<<<<<<< HEAD
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    const res = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        identifier,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error("Invalid credentials");
+    }
+
+    // TEMP: token handling later (problem 2)
+    localStorage.setItem("token", data.token);
+
+    navigate("/admin");
+  } catch (err) {
+    alert("Login failed. Invalid email/username or password.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+=======
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -51,6 +84,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ siteConfig }) => {
       setIsLoading(false);
     }
   };
+>>>>>>> 964abf81776e6c021d5871ef98008b5701eb44a1
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
